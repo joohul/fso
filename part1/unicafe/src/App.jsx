@@ -15,6 +15,15 @@ const Display = (props) => {
   )
 }
 
+const StatisticLine = (props) => {
+  return (
+    <tr>
+      <td>{props.text}</td>
+      <td>{props.value}</td>
+    </tr>
+  )
+}
+
 const Statistics = (props) => {
   const { good, neutral, bad } = props
   if (good === 0 && neutral === 0 && bad === 0) {
@@ -26,12 +35,16 @@ const Statistics = (props) => {
   }
   return (
     <div>
-      <Display text="good" value={good} />
-      <Display text="neutral" value={neutral} />
-      <Display text="bad" value={bad} />
-      <Display text="all" value={good+neutral+bad} />
-      <Display text="average" value={(good-bad) / (good+neutral+bad)} />
-      <Display text="positive (%)" value={good / (good+neutral+bad) * 100} />
+      <table>
+        <tbody>
+          <StatisticLine text="good" value={good} />
+          <StatisticLine text="neutral" value={neutral} />
+          <StatisticLine text="bad" value={bad} />
+          <StatisticLine text="all" value={good+neutral+bad} />
+          <StatisticLine text="average" value={(good-bad) / (good+neutral+bad)} />
+          <StatisticLine text="positive (%)" value={good / (good+neutral+bad) * 100} />
+        </tbody>
+      </table>
     </div>
   )
 }
