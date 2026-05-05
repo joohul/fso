@@ -75,9 +75,18 @@ const App = () => {
   const addPerson = (event) => {
     event.preventDefault()
     // Check if the name already exists in the phonebook
-    // Number doesn't need to be checked per the excercise (?)
     if (persons.some(person => person.name === newName)) {
-      alert(`${newName} is already added to phonebook`)
+      // If the name exists, ask to replace the number
+      const person = persons.find(person => person.name === newName)
+      if (window.confirm(`${person.name} is already in the phonebook, replace the current number?`)) {
+        personService
+          .update(person.id, { ...person, number: newNumber })
+          .then(response => {
+            setPersons(persons.filter(p => p.id !== person.id).concat(response.data)) // Update the state with the updated person
+            setNewName('')
+            setNewNumber('')
+        })
+      }
       return
     }
     const personObject = {
@@ -95,7 +104,8 @@ const App = () => {
 
   const deletePerson = (person) => {
     if (window.confirm(`Delete ${person.name}?`)) {
-      personService.deletePerson(person.id)
+      personService
+        .deletePerson(person.id)
         .then(response => {
           setPersons(persons.filter(p => p.id !== person.id)) // Remove the deleted person from the state
         })
