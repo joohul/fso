@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 
+
 const SearchForm = (props) => {
   const { newSearch, handleSearchChange } = props
   return (
@@ -43,6 +44,35 @@ const DisplayCountryDetails = (props) => {
   )
 }
 
+const DisplayCapitalWeather = (props) => {
+  const { country } = props
+  const apiKey = import.meta.env.VITE_OWM_KEY // API key should be passed in this environment variable
+  const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${country.capital}&units=metric&appid=${apiKey}`
+
+  const [weather, setWeather] = useState(null)
+
+  // Fetch OWM data
+  useEffect(() => {
+    fetch(apiUrl)
+      .then(response => response.json())
+      .then(data => setWeather(data))
+  }, [apiUrl])
+
+  if (!weather) {
+    return
+  }
+
+  return (
+    <div>
+      <h3>Weather in {country.capital}</h3>
+      <p>Temperature: {weather.main.temp} Celsius</p>
+      <img src={`https://openweathermap.org/img/wn/${weather.weather[0].icon}@2x.png`} alt="Weather icon" />
+      <p>Wind: {weather.wind.speed} m/s</p>
+    </div>
+  )
+}
+
+
 // Display countries matching the search term
 const DisplayCountries = (props) => {
   const { countries, setNewSearch } = props
@@ -50,7 +80,12 @@ const DisplayCountries = (props) => {
     return <p>Too many matches, specify another filter</p>
   }
   else if (countries.length === 1) { // Show details if only one match
-    return <DisplayCountryDetails country={countries[0]} />
+    return (
+      <div>
+        <DisplayCountryDetails country={countries[0]} />
+        <DisplayCapitalWeather country={countries[0]} />
+      </div>
+    )
   }
   return ( // Show list
     <div>
