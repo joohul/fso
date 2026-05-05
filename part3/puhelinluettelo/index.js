@@ -1,6 +1,7 @@
 const express = require('express')
 const app = express()
 
+app.use(express.json())
 
 let data = [
   {
@@ -34,6 +35,43 @@ app.get("/info", (request, response) => {
   response.send(
     `<p>Phonebook has info for ${data.length} people</p><p>${now}</p>`
   )
+})
+
+app.get("/api/persons/:id", (request, response) => {
+  const id = request.params.id
+  const person = data.find(p => p.id === id)
+  if (person) {
+    response.json(person)
+  } else {
+    response.status(404).end()
+  }
+})
+
+app.delete("/api/persons/:id", (request, response) => {
+  const id = request.params.id
+  data = data.filter(p => p.id !== id)
+  response.status(204).end()
+})
+
+app.post("/api/persons", (request, response) => {
+  console.log(request)
+  const body = request.body
+  if (!body.name) {
+    return response.status(400).json({ error: "name missing" })
+  }
+  if (!body.number) {
+    return response.status(400).json({ error: "number missing" })
+  }
+  if (data.find(p => p.name === body.name)) {
+    return response.status(400).json({ error: "name must be unique" })
+  }
+  const person = {
+    name: body.name,
+    number: body.number,
+    id: Math.floor(Math.random() * 9999999999).toString()
+  }
+  data = data.concat(person)
+  response.json(person)
 })
 
 const PORT = 3001
