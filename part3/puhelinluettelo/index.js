@@ -1,12 +1,14 @@
 const express = require('express')
 const morgan = require('morgan')
 const app = express()
+const cors = require('cors')
 
+app.use(cors())
 app.use(express.json())
+
 morgan.token('body', (request, response) => {
   return JSON.stringify(request.body)
 })
-
 // Replaced tiny with format that shows body of POST requests
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 
