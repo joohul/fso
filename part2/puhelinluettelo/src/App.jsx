@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 import personService from './services/persons'
+import SuccessNotification from './components/SuccessNotification'
+import ErrorNotification from './components/ErrorNotification'
 
 // Delete person -button
 const DeleteButton = (props) => {
@@ -71,6 +73,8 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [newSearch, setNewSearch] = useState('')
+  const [successMessage, setSuccessMessage] = useState(null)
+  const [errorMessage, setErrorMessage] = useState(null)
 
   const addPerson = (event) => {
     event.preventDefault()
@@ -85,7 +89,12 @@ const App = () => {
             setPersons(persons.filter(p => p.id !== person.id).concat(response.data)) // Update the state with the updated person
             setNewName('')
             setNewNumber('')
-        })
+            showSuccess(`Updated ${person.name}'s number`)
+          })
+          .catch(error => {
+            showError(`Error updating ${person.name}: ${error.response.data.error}`)
+            setPersons(persons.filter(p => p.id !== person.id)) // Remove the person from the state if it has been deleted from the server
+          })
       }
       return
     }
@@ -99,6 +108,10 @@ const App = () => {
         setPersons(persons.concat(response.data))
         setNewName('')
         setNewNumber('')
+        showSuccess(`Added ${newName}`)
+      })
+      .catch(error => {
+        showError(`Error adding ${newName}: ${error.response.data.error}`)
       })
   }
 
@@ -108,9 +121,28 @@ const App = () => {
         .deletePerson(person.id)
         .then(response => {
           setPersons(persons.filter(p => p.id !== person.id)) // Remove the deleted person from the state
+          showSuccess(`Deleted ${person.name}`)
+        })
+        .catch(error => {
+          showError(`Error deleting ${person.name}: ${error.response.data.error}`)
         })
     }
   }
+
+  // Separate functions for showing success/error messages to avoid repetition
+  const showError = (message) => {
+    setErrorMessage(message)
+    setTimeout(() => {
+      setErrorMessage(null)
+    }, 5000)
+  }
+
+  const showSuccess = (message) => {
+    setSuccessMessage(message)
+    setTimeout(() => {
+      setSuccessMessage(null)
+    }, 5000)
+  } 
 
   const handleNameChange = (event) => {
     setNewName(event.target.value)
@@ -127,6 +159,9 @@ const App = () => {
   return (
     <div>
       <h1>Phonebook</h1>
+      
+      <SuccessNotification message={successMessage} />
+      <ErrorNotification message={errorMessage} />
       <h2>Add new person</h2>
       <PersonForm addPerson={addPerson} newName={newName} handleNameChange={handleNameChange} newNumber={newNumber} handleNumberChange={handleNumberChange} />
       <h2>Numbers</h2>
