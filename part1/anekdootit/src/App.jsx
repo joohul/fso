@@ -7,10 +7,14 @@ const Button = (props) => {
     </button>
   )
 }
-const Display = (props) => {
+
+const MostVoted = (props) => {
+  const { anecdotes, votes } = props
   return (
     <div>
-      {props.text} {props.value}
+      {anecdotes[votes.indexOf(Math.max(...votes))]}
+      <br></br>
+      has {Math.max(...votes)} votes
     </div>
   )
 }
@@ -32,6 +36,7 @@ const App = () => {
   
   return (
     <div>
+      <h1> Anecdote of the day </h1>
       {anecdotes[selected]}
       <br></br>
       has {votes[selected]} votes
@@ -42,6 +47,8 @@ const App = () => {
         copy[selected] += 1
         setVotes(copy)
       }} />
+      <h1> Anecdote with most votes </h1>
+      <MostVoted anecdotes={anecdotes} votes={votes} />
     </div>
   )
 }
