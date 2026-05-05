@@ -1,7 +1,14 @@
 const express = require('express')
+const morgan = require('morgan')
 const app = express()
 
 app.use(express.json())
+morgan.token('body', (request, response) => {
+  return JSON.stringify(request.body)
+})
+
+// Replaced tiny with format that shows body of POST requests
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 
 let data = [
   {
@@ -54,7 +61,6 @@ app.delete("/api/persons/:id", (request, response) => {
 })
 
 app.post("/api/persons", (request, response) => {
-  console.log(request)
   const body = request.body
   if (!body.name) {
     return response.status(400).json({ error: "name missing" })
