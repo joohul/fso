@@ -14,7 +14,6 @@ blogsRouter.post('/', (request, response) => {
   }
   user = User.findOne({}).then((user) => {
     const blog = new Blog({ ...request.body, user: user._id }) // Set user to any existing user
-    console.log('blog:', blog)
     blog.save().then((result) => {
       response.status(201).json(result)
     })
