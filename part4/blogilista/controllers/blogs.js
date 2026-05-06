@@ -1,21 +1,5 @@
 const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
-const User = require('../models/user')
-const jwt = require('jsonwebtoken')
-
-const getUserFromToken = async (request) => {
-  try {
-    const decodedToken = jwt.verify(request.token, process.env.SECRET)
-
-    if (!decodedToken.id) {
-      return null
-    }
-
-    return User.findById(decodedToken.id)
-  } catch (error) {
-    return null
-  }
-}
 
 blogsRouter.get('/', (request, response) => {
   Blog.find({}).populate('user').then((blogs) => {
@@ -24,11 +8,10 @@ blogsRouter.get('/', (request, response) => {
 })
 
 blogsRouter.post('/', async (request, response) => {
-  const user = await getUserFromToken(request)
-
-  if (!user) {
+  if (!request.user) {
     return response.status(401).json({ error: 'token invalid' })
   }
+  const user = request.user
 
   if (!request.body.title || !request.body.url) {
     return response.status(400).json({ error: 'title or url missing' })
@@ -40,11 +23,21 @@ blogsRouter.post('/', async (request, response) => {
 
 // Async/await and .then() are now mixed in this file, would probably be best to have only one style but this was what was asked for in the exercise.
 blogsRouter.delete('/:id', async (request, response) => {
-  const blog = await Blog.findByIdAndDelete(request.params.id)
-  // return 404 if blog with id doesn't exist, 204 if it was deleted successfully
-  if (!blog) {
+  if (!request.user) {
+    return response.status(401).json({ error: 'token invalid' })
+  }
+  const user = request.user
+
+  const blogToDelete = await Blog.findById(request.params.id)
+  if (!blogToDelete) {
     return response.status(404).json({ error: 'blog not found' })
   }
+
+  if (blogToDelete.user.toString() !== user._id.toString()) {
+    return response.status(403).json({ error: 'user does not match blog creator' })
+  }
+
+  const blog = await Blog.findByIdAndDelete(request.params.id)
   response.status(204).end()
 })
 
