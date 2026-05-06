@@ -35,9 +35,11 @@ app.get("/api/persons", (request, response) => {
 
 app.get("/info", (request, response) => {
   const now = new Date()
-  response.send(
-    `<p>Phonebook has info for ${data.length} people</p><p>${now}</p>`
-  )
+  Person.countDocuments({}).then(count => {
+    response.send(
+      `<p>Phonebook has info for ${count} people</p><p>${now}</p>`
+    )
+  })
 })
 
 app.get("/api/persons/:id", (request, response, next) => {
@@ -58,7 +60,7 @@ app.delete("/api/persons/:id", (request, response, next) => {
   }).catch(error => next(error))
 })
 
-app.post("/api/persons", (request, response) => {
+app.post("/api/persons", (request, response, next) => {
   const body = request.body
   if (!body.name) {
     return response.status(400).json({ error: "name missing" })
@@ -66,9 +68,11 @@ app.post("/api/persons", (request, response) => {
   if (!body.number) {
     return response.status(400).json({ error: "number missing" })
   }
-  if (data.find(p => p.name === body.name)) {
-    return response.status(400).json({ error: "name must be unique" })
-  }
+  Person.countDocuments({ name: body.name }).then(count => {
+    if (count > 0) {
+      return response.status(400).json({ error: "name must be unique" })
+    }
+  })
   const person = {
     name: body.name,
     number: body.number,
@@ -80,7 +84,7 @@ app.post("/api/persons", (request, response) => {
   })
   newPerson.save().then(savedPerson => {
     response.json(savedPerson)
-  })
+  }).catch(error => next(error))
 })
 
 const PORT = process.env.PORT
