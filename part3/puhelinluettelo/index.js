@@ -1,6 +1,10 @@
 const express = require('express')
-const morgan = require('morgan')
 const app = express()
+
+const morgan = require('morgan')
+
+require('dotenv').config()
+const Person = require('./models/person')
 
 app.use(express.json())
 app.use(express.static('dist'))
@@ -35,7 +39,9 @@ let data = [
 ]
 
 app.get("/api/persons", (request, response) => {
-  response.json(data)
+  Person.find({}).then(persons => {
+    response.json(persons)
+  })
 })
 
 app.get("/info", (request, response) => {
@@ -46,19 +52,24 @@ app.get("/info", (request, response) => {
 })
 
 app.get("/api/persons/:id", (request, response) => {
-  const id = request.params.id
-  const person = data.find(p => p.id === id)
-  if (person) {
-    response.json(person)
-  } else {
-    response.status(404).end()
-  }
+  console.log(request.params.id)
+  Person.findById(request.params.id).then(person => {
+    console.log("!!!", person)
+    if (person) {
+      response.json(person)
+    } else {
+      response.status(404).end()
+    }
+  })
 })
 
 app.delete("/api/persons/:id", (request, response) => {
-  const id = request.params.id
-  data = data.filter(p => p.id !== id)
-  response.status(204).end()
+  Person.findByIdAndDelete(request.params.id).then(() => {
+    response.status(204).end()
+  }).catch(error => {
+    console.error(error)
+    response.status(400).json({ error: "error fetching by id" })
+  })
 })
 
 app.post("/api/persons", (request, response) => {
@@ -77,11 +88,16 @@ app.post("/api/persons", (request, response) => {
     number: body.number,
     id: Math.floor(Math.random() * 9999999999).toString()
   }
-  data = data.concat(person)
-  response.json(person)
+  const newPerson = new Person({
+    name: body.name,
+    number: body.number
+  })
+  newPerson.save().then(savedPerson => {
+    response.json(savedPerson)
+  })
 })
 
-const PORT = 3001
+const PORT = process.env.PORT
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
