@@ -92,7 +92,7 @@ const App = () => {
             showSuccess(`Updated ${person.name}'s number`)
           })
           .catch(error => {
-            showError(`Error updating ${person.name}: ${error.response.data.error}`)
+            showError(`Error updating ${person.name}: ${error.response.data}`)
             if (error.response.status === 404) {
               setPersons(persons.filter(p => p.id !== person.id)) // Remove the person from the state if it doesn't exist on the server
             }

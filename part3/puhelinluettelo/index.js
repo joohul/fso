@@ -20,12 +20,13 @@ const errorHandler = (error, request, response, next) => {
 
   if (error.name === 'CastError') {
     return response.status(400).send({ error: 'malformatted id' })
+  } else if (error.name === 'ValidationError') {
+    console.log('validation error:', error.message)
+    return response.status(400).json({ error: error.message })
   }
 
   next(error)
 }
-
-app.use(errorHandler)
 
 app.get("/api/persons", (request, response) => {
   Person.find({}).then(persons => {
@@ -103,6 +104,8 @@ app.put("/api/persons/:id", (request, response, next) => {
     }).catch(error => next(error))
   }).catch(error => next(error))
 })
+
+app.use(errorHandler)
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
