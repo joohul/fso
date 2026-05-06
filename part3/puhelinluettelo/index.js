@@ -45,7 +45,6 @@ app.get("/info", (request, response) => {
 app.get("/api/persons/:id", (request, response, next) => {
   console.log(request.params.id)
   Person.findById(request.params.id).then(person => {
-    console.log("!!!", person)
     if (person) {
       response.json(person)
     } else {
@@ -84,6 +83,25 @@ app.post("/api/persons", (request, response, next) => {
   })
   newPerson.save().then(savedPerson => {
     response.json(savedPerson)
+  }).catch(error => next(error))
+})
+
+app.put("/api/persons/:id", (request, response, next) => {
+  const body = request.body
+  if (!body.name) {
+    return response.status(400).json({ error: "name missing" })
+  }
+  if (!body.number) {
+    return response.status(400).json({ error: "number missing" })
+  }
+  Person.findByIdAndDelete(request.params.id).then(() => {
+    const newPerson = new Person({
+      name: body.name,
+      number: body.number
+    })
+    newPerson.save().then(savedPerson => {
+      response.json(savedPerson)
+    }).catch(error => next(error))
   }).catch(error => next(error))
 })
 

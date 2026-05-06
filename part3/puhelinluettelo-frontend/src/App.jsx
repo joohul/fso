@@ -93,7 +93,9 @@ const App = () => {
           })
           .catch(error => {
             showError(`Error updating ${person.name}: ${error.response.data.error}`)
-            setPersons(persons.filter(p => p.id !== person.id)) // Remove the person from the state if it has been deleted from the server
+            if (error.response.status === 404) {
+              setPersons(persons.filter(p => p.id !== person.id)) // Remove the person from the state if it doesn't exist on the server
+            }
           })
       }
       return
@@ -125,6 +127,9 @@ const App = () => {
         })
         .catch(error => {
           showError(`Error deleting ${person.name}: ${error.response.data.error}`)
+          if (error.response.status === 404) {
+            setPersons(persons.filter(p => p.id !== person.id)) // Remove the person from the state if it doesn't exist on the server
+          }
         })
     }
   }
