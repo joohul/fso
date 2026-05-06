@@ -23,10 +23,12 @@ const personSchema = new mongoose.Schema({
     type: String,
     minlength: 8,
     required: true,
-    validator: {
+    validate: {
       validator: function(v) {
-        return /\d{2,3}-\d+/.test(v)
-  }}}
+        return /^\d{2,3}-\d+$/.test(v)
+      }
+    }
+  }
 })
 
 personSchema.set('toJSON', {
