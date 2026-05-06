@@ -3,6 +3,20 @@ const Blog = require('../models/blog')
 const User = require('../models/user')
 const jwt = require('jsonwebtoken')
 
+const getUserFromToken = async (request) => {
+  try {
+    const decodedToken = jwt.verify(request.token, process.env.SECRET)
+
+    if (!decodedToken.id) {
+      return null
+    }
+
+    return User.findById(decodedToken.id)
+  } catch (error) {
+    return null
+  }
+}
+
 blogsRouter.get('/', (request, response) => {
   Blog.find({}).populate('user').then((blogs) => {
     response.json(blogs)
@@ -10,18 +24,10 @@ blogsRouter.get('/', (request, response) => {
 })
 
 blogsRouter.post('/', async (request, response) => {
-  try {
-    const decodedToken = jwt.verify(request.token, process.env.SECRET)
-  } catch (error) {
-    return response.status(401).json({ error: 'token invalid' })
-  }
+  const user = await getUserFromToken(request)
 
-  if (!decodedToken.id) {
-    return response.status(401).json({ error: 'token invalid' })
-  }
-  const user = await User.findById(decodedToken.id)
   if (!user) {
-    return response.status(400).json({ error: 'user not found' })
+    return response.status(401).json({ error: 'token invalid' })
   }
 
   if (!request.body.title || !request.body.url) {
