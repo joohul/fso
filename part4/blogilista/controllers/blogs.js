@@ -1,6 +1,17 @@
 const blogsRouter = require('express').Router()
+const { get } = require('mongoose')
 const Blog = require('../models/blog')
 const User = require('../models/user')
+const jwt = require('jsonwebtoken')
+
+const getTokenFrom = request => {
+  const authorization = request.get('authorization')
+  if (authorization && authorization.startsWith('Bearer ')) {
+    return authorization.replace('Bearer ', '')
+  }
+  return null
+  console.log('authorization:', authorization)
+}
 
 blogsRouter.get('/', (request, response) => {
   Blog.find({}).populate('user').then((blogs) => {
@@ -8,16 +19,22 @@ blogsRouter.get('/', (request, response) => {
   })
 })
 
-blogsRouter.post('/', (request, response) => {
+blogsRouter.post('/', async (request, response) => {
+  if (!getTokenFrom(request)) {
+    return response.status(401).json({ error: 'token missing' })
+  }
+  const decodedToken = jwt.verify(getTokenFrom(request), process.env.SECRET)
+  if (!decodedToken.id) {
+    return response.status(401).json({ error: 'token invalid' })
+  }
+  const user = await User.findById(decodedToken.id)
+
   if (!request.body.title || !request.body.url) {
     return response.status(400).json({ error: 'title or url missing' })
   }
-  user = User.findOne({}).then((user) => {
-    const blog = new Blog({ ...request.body, user: user._id }) // Set user to any existing user
-    blog.save().then((result) => {
-      response.status(201).json(result)
-    })
-  })
+  const blog = new Blog({ ...request.body, user: user._id })
+  const savedBlog = await blog.save()
+  response.status(201).json(savedBlog)
 })
 
 // Async/await and .then() are now mixed in this file, would probably be best to have only one style but this was what was asked for in the exercise.
