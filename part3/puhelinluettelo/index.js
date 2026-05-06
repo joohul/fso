@@ -60,6 +60,9 @@ app.get("/api/persons/:id", (request, response) => {
     } else {
       response.status(404).end()
     }
+  }).catch(error => {
+    console.error(error)
+    response.status(400).json({ error: "malformatted id" })
   })
 })
 
@@ -68,7 +71,7 @@ app.delete("/api/persons/:id", (request, response) => {
     response.status(204).end()
   }).catch(error => {
     console.error(error)
-    response.status(400).json({ error: "error fetching by id" })
+    response.status(400).json({ error: "malformatted id" })
   })
 })
 
