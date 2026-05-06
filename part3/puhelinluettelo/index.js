@@ -15,28 +15,17 @@ morgan.token('body', (request, response) => {
 // Replaced tiny with format that shows body of POST requests
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 
-let data = [
-  {
-    "name": "Arto Hellas",
-    "number": "040-123456",
-    "id": "1"
-  },
-  {
-    "name": "Ada Lovelace",
-    "number": "39-44-5323523",
-    "id": "2"
-  },
-  {
-    "name": "Dan Abramov",
-    "number": "12-43-234345",
-    "id": "3"
-  },
-  {
-    "name": "Mary Poppendieck",
-    "number": "39-23-6423122",
-    "id": "4"
-    }
-]
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message)
+
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' })
+  }
+
+  next(error)
+}
+
+app.use(errorHandler)
 
 app.get("/api/persons", (request, response) => {
   Person.find({}).then(persons => {
@@ -51,7 +40,7 @@ app.get("/info", (request, response) => {
   )
 })
 
-app.get("/api/persons/:id", (request, response) => {
+app.get("/api/persons/:id", (request, response, next) => {
   console.log(request.params.id)
   Person.findById(request.params.id).then(person => {
     console.log("!!!", person)
@@ -60,19 +49,13 @@ app.get("/api/persons/:id", (request, response) => {
     } else {
       response.status(404).end()
     }
-  }).catch(error => {
-    console.error(error)
-    response.status(400).json({ error: "malformatted id" })
-  })
+  }).catch(error => next(error))
 })
 
-app.delete("/api/persons/:id", (request, response) => {
+app.delete("/api/persons/:id", (request, response, next) => {
   Person.findByIdAndDelete(request.params.id).then(() => {
     response.status(204).end()
-  }).catch(error => {
-    console.error(error)
-    response.status(400).json({ error: "malformatted id" })
-  })
+  }).catch(error => next(error))
 })
 
 app.post("/api/persons", (request, response) => {
