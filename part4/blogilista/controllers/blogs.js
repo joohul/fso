@@ -1,5 +1,6 @@
 const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
+const User = require('../models/user')
 
 blogsRouter.get('/', (request, response) => {
   Blog.find({}).then((blogs) => {
@@ -11,10 +12,12 @@ blogsRouter.post('/', (request, response) => {
   if (!request.body.title || !request.body.url) {
     return response.status(400).json({ error: 'title or url missing' })
   }
-  const blog = new Blog(request.body)
-
-  blog.save().then((result) => {
-    response.status(201).json(result)
+  user = User.findOne({}).then((user) => {
+    const blog = new Blog({ ...request.body, user: user._id }) // Set user to any existing user
+    console.log('blog:', blog)
+    blog.save().then((result) => {
+      response.status(201).json(result)
+    })
   })
 })
 

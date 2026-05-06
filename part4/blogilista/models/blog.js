@@ -1,4 +1,5 @@
 const config = require('../utils/config')
+const User = require('./user')
 const mongoose = require('mongoose')
 
 const mongoUrl = config.MONGODB_URI
@@ -12,6 +13,10 @@ const blogSchema = mongoose.Schema({
     type: Number,
     default: 0
   },
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }
 })
 
 blogSchema.set('toJSON', {

@@ -4,6 +4,7 @@ const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
 const Blog = require('../models/blog')
+const User = require('../models/user')
 const { resolve } = require('node:dns')
 
 const api = supertest(app)
@@ -24,6 +25,9 @@ const initialBlogs = [
 ]
 
 beforeEach(async () => {
+  await User.deleteMany({}) // Add user to test since blogs have a reference to user
+  const user = new User({ username: 'root', name: 'root', passwordHash: 'test' })
+  await user.save()
   await Blog.deleteMany({})
   let blogObject = new Blog(initialBlogs[0])
   await blogObject.save()
