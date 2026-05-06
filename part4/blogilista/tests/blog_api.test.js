@@ -30,9 +30,9 @@ beforeEach(async () => {
   await user.save()
   token = jwt.sign({ username: user.username, id: user._id }, process.env.SECRET)
   await Blog.deleteMany({})
-  let blogObject = new Blog(initialBlogs[0])
+  let blogObject = new Blog({ ...initialBlogs[0], user: user._id })
   await blogObject.save()
-  blogObject = new Blog(initialBlogs[1])
+  blogObject = new Blog({ ...initialBlogs[1], user: user._id })
   await blogObject.save()
 })
 
@@ -100,6 +100,19 @@ test('a new blog can be added without likes', async () => {
   assert.strictEqual(response.body.likes, 0)
 })
 
+test('blog cannot be added without token', async () => {
+    const newBlog = {
+    title: "Test", 
+    author: "Author",
+    url: "http://test.com",
+  }
+
+  const response = await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(401)
+})
+
 test('blog without title or url leads to 400 Bad Request', async () => {
   const newBlog = {
     author: "Author",
@@ -119,6 +132,7 @@ test('blog that exists can be deleted', async () => {
 
   await api
     .delete(`/api/blogs/${blogToDelete.id}`)
+    .set('Authorization', `Bearer ${token}`)
     .expect(204)
   
   const blogsAtEnd = await api.get('/api/blogs')
@@ -130,6 +144,7 @@ test('blog that does not exist cannot be deleted', async () => {
 
   await api
     .delete(`/api/blogs/${Id}`)
+    .set('Authorization', `Bearer ${token}`)
     .expect(404)
 })
 
@@ -146,6 +161,7 @@ test('blog that exists can be updated', async () => {
 
   const response = await api
     .put(`/api/blogs/${blogToUpdate.id}`)
+    .set('Authorization', `Bearer ${token}`)
     .send(newBlog)
     .expect(200)
 
@@ -157,6 +173,7 @@ test('blog that does not exist cannot be updated', async () => {
 
   await api
     .put(`/api/blogs/${Id}`)
+    .set('Authorization', `Bearer ${token}`)
     .send({ title: "Title" })
     .expect(404)
 })
