@@ -2,10 +2,10 @@ const { test, after, beforeEach } = require('node:test')
 const assert = require('node:assert')
 const mongoose = require('mongoose')
 const supertest = require('supertest')
+const jwt = require('jsonwebtoken')
 const app = require('../app')
 const Blog = require('../models/blog')
 const User = require('../models/user')
-const { resolve } = require('node:dns')
 
 const api = supertest(app)
 
@@ -28,6 +28,7 @@ beforeEach(async () => {
   await User.deleteMany({}) // Add user to test since blogs have a reference to user
   const user = new User({ username: 'root', name: 'root', passwordHash: 'test' })
   await user.save()
+  token = jwt.sign({ username: user.username, id: user._id }, process.env.SECRET)
   await Blog.deleteMany({})
   let blogObject = new Blog(initialBlogs[0])
   await blogObject.save()
@@ -73,6 +74,7 @@ test('a new blog can be added', async () => {
 
   await api
     .post('/api/blogs')
+    .set('Authorization', `Bearer ${token}`)
     .send(newBlog)
     .expect(201)
 
@@ -91,6 +93,7 @@ test('a new blog can be added without likes', async () => {
 
   const response = await api
     .post('/api/blogs')
+    .set('Authorization', `Bearer ${token}`)
     .send(newBlog)
     .expect(201)
 
@@ -105,6 +108,7 @@ test('blog without title or url leads to 400 Bad Request', async () => {
 
   await api
     .post('/api/blogs')
+    .set('Authorization', `Bearer ${token}`)
     .send(newBlog)
     .expect(400)
 })
