@@ -78,7 +78,6 @@ test('a new blog can be added', async () => {
 })
 
 // Test HTTP POST to /api/blogs without likes defaults to 0
-
 test('a new blog can be added without likes', async () => {
   const newBlog = {
     title: "Test", 
@@ -92,6 +91,18 @@ test('a new blog can be added without likes', async () => {
     .expect(201)
 
   assert.strictEqual(response.body.likes, 0)
+})
+
+test('blog without title or url leads to 400 Bad Request', async () => {
+  const newBlog = {
+    author: "Author",
+    likes: 0
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(400)
 })
 
 after(async () => {
