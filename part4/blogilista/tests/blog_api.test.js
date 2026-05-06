@@ -105,6 +105,54 @@ test('blog without title or url leads to 400 Bad Request', async () => {
     .expect(400)
 })
 
+test('blog that exists can be deleted', async () => {
+  const blogsAtStart = await api.get('/api/blogs')
+  const blogToDelete = blogsAtStart.body[0]
+
+  await api
+    .delete(`/api/blogs/${blogToDelete.id}`)
+    .expect(204)
+  
+  const blogsAtEnd = await api.get('/api/blogs')
+  assert.strictEqual(blogsAtEnd.body.length, blogsAtStart.body.length - 1)
+})
+
+test('blog that does not exist cannot be deleted', async () => {
+  const Id = '1a111aa11b11a111111d11f1'
+
+  await api
+    .delete(`/api/blogs/${Id}`)
+    .expect(404)
+})
+
+test('blog that exists can be updated', async () => {
+  const blogsAtStart = await api.get('/api/blogs')
+  const blogToUpdate = blogsAtStart.body[0]
+
+  const newBlog = {
+    title: "Test", 
+    author: "Author",
+    url: "http://test.com",
+    likes: 5
+  }
+
+  const response = await api
+    .put(`/api/blogs/${blogToUpdate.id}`)
+    .send(newBlog)
+    .expect(200)
+
+  assert.strictEqual(response.body.title, "Test")
+})
+
+test('blog that does not exist cannot be updated', async () => {
+  const Id = '1a111aa11b11a111111d11f1'
+
+  await api
+    .put(`/api/blogs/${Id}`)
+    .send({ title: "Title" })
+    .expect(404)
+})
+
 after(async () => {
   await mongoose.connection.close()
 })

@@ -18,4 +18,27 @@ blogsRouter.post('/', (request, response) => {
   })
 })
 
+// Async/await and .then() are now mixed in this file, would probably be best to have only one style but this was what was asked for in the exercise.
+blogsRouter.delete('/:id', async (request, response) => {
+  const blog = await Blog.findByIdAndDelete(request.params.id)
+  // return 404 if blog with id doesn't exist, 204 if it was deleted successfully
+  if (!blog) {
+    return response.status(404).json({ error: 'blog not found' })
+  }
+  response.status(204).end()
+})
+
+blogsRouter.put('/:id', async (request, response) => {
+  const body = request.body
+  const oldBlog = await Blog.findById(request.params.id)
+  if (!oldBlog) {
+    return response.status(404).json({ error: 'blog not found' })
+  }
+  console.log(oldBlog)
+  const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, body, { returnDocument: 'after' })
+  console.log(updatedBlog)
+  response.status(200).json(updatedBlog)
+})
+
+
 module.exports = blogsRouter
