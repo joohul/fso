@@ -1,6 +1,7 @@
 import { useState } from 'react'
 
-const Blog = ({ blog, updateBlog }) => {
+
+const Blog = ({ blog, updateBlog, removeBlog, user }) => {
   const [showDetails, setShowDetails] = useState(false)
 
   const addLike = (event) => {
@@ -10,6 +11,18 @@ const Blog = ({ blog, updateBlog }) => {
     updateBlog(newBlog)
     newBlog.user = blog.user // Restore full user object for frontend state
   }
+
+  const deleteBlog = (event) => {
+    event.preventDefault()
+    if (window.confirm(`Remove blog ${blog.title} by ${blog.author}?`)) {
+      console.log('Deleting blog with ID:', blog.id)
+      console.log('removeBlog prop:', typeof removeBlog, removeBlog)
+      removeBlog(blog.id)
+    }
+  }
+
+  console.log('blog user:', blog.user)
+  console.log('current user:', user)
 
   return (
     <div>
@@ -22,6 +35,9 @@ const Blog = ({ blog, updateBlog }) => {
           <p>{blog.url}</p>
           {blog.likes} likes <button onClick={addLike}>like</button>
           <p>{blog.user.name}</p>
+          {blog.user.name === user.name && (
+            <button onClick={deleteBlog}>remove</button>
+          )}
         </div>
       )}
       <p></p>

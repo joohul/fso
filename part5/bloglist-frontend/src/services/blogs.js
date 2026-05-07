@@ -15,11 +15,19 @@ const create = async (newObject, token) => {
 }
 
 const update = async (id, updatedObject, token) => {
-  //const config = {
-  //  headers: { Authorization: `Bearer ${token}` }
-  //}
-  const response = await axios.put(`${baseUrl}/${id}`, updatedObject/*, config*/)
+  const config = {
+    headers: { Authorization: `Bearer ${token}` }
+  }
+  const response = await axios.put(`${baseUrl}/${id}`, updatedObject, config)
   return response.data
 }
 
-export default { getAll, create, update }
+const deleteBlog = async (id, token) => {
+  const config = {
+    headers: { Authorization: `Bearer ${token}` }
+  }
+  const response = await axios.delete(`${baseUrl}/${id}`, config)
+  return response.data
+}
+
+export default { getAll, create, update, deleteBlog }

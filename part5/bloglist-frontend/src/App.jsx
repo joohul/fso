@@ -80,6 +80,13 @@ const App = () => {
 
   }
 
+  const handleRemoveBlog = (blogId) => {
+    blogService.deleteBlog(blogId, user.token).then(() => {
+      setBlogs(blogs.filter(blog => blog.id !== blogId))
+      showSuccess('blog removed successfully')
+    })
+  }
+
   if (!user) {
     return (
     <div>
@@ -107,7 +114,7 @@ const App = () => {
           <NewBlogForm createBlog={handleNewBlog} />
         </Togglable>
         {blogs.sort((a, b) => b.likes - a.likes).map(blog =>
-          <Blog key={blog.id} blog={blog} updateBlog={handleUpdateBlog} />
+          <Blog key={blog.id} blog={blog} updateBlog={handleUpdateBlog} removeBlog={handleRemoveBlog} user={user} />
         )}
       </div>
     )
