@@ -90,5 +90,33 @@ describe('Blog app', () => {
 
       await expect(page.getByText('Test blog Author')).not.toBeVisible()
     })
+    
+    test('a blog cannot be deleted by another user', async ({ page, request }) => {
+      // create a blog as mluukkai
+      await page.getByRole('button', { name: 'create new blog' }).click()
+      await page.getByRole('textbox').nth(0).fill('Test blog')
+      await page.getByRole('textbox').nth(1).fill('Author')
+      await page.getByRole('textbox').nth(2).fill('url.fi')
+      await page.getByRole('button', { name: 'create' }).click()
+
+      await page.getByRole('button', { name: 'logout' }).click()
+
+      // Create new user and log in
+      await request.post('http://localhost:3003/api/users', {
+        data: {
+          name: 'Salee Joku',
+          username: 'kayttaja',
+          password: '123456'
+        }
+      })
+      await page.getByRole('textbox').nth(0).fill('kayttaja')
+      await page.getByRole('textbox').nth(1).fill('123456')
+      await page.getByRole('button', { name: 'login' }).click()
+
+      // Check remove button is not shown
+      await page.getByRole('button', { name: 'show details' }).click()
+      const removeButton = page.getByRole('button', { name: 'remove' })
+      await expect(removeButton).not.toBeVisible()
+    })
   })
 })
