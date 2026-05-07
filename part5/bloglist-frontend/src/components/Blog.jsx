@@ -15,8 +15,6 @@ const Blog = ({ blog, updateBlog, removeBlog, user }) => {
   const deleteBlog = (event) => {
     event.preventDefault()
     if (window.confirm(`Remove blog ${blog.title} by ${blog.author}?`)) {
-      console.log('Deleting blog with ID:', blog.id)
-      console.log('removeBlog prop:', typeof removeBlog, removeBlog)
       removeBlog(blog.id)
     }
   }
