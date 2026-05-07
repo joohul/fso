@@ -4,15 +4,6 @@ import { useState } from 'react'
 const Blog = ({ blog, updateBlog, removeBlog, user }) => {
   const [showDetails, setShowDetails] = useState(false)
 
-  const canUserRemove = () => {
-    if (!user || !blog.user) return false
-    const blogUserId = typeof blog.user === 'object'
-      ? (blog.user.id || blog.user._id)
-      : blog.user
-    const currentUserId = user.id || user._id
-    return String(blogUserId) === String(currentUserId) || blog.user?.name === user.name
-  }
-
   const addLike = (event) => {
     event.preventDefault()
     const newBlog = { ...blog, likes: blog.likes + 1 }
@@ -42,7 +33,9 @@ const Blog = ({ blog, updateBlog, removeBlog, user }) => {
           <p>{blog.url}</p>
           {blog.likes} likes <button onClick={addLike}>like</button>
           <p>{blog.user?.name}</p>
-          {canUserRemove() && (<button onClick={deleteBlog}>remove</button>)}
+          {(blog.user && user && blog.user.name === user.name) && (
+            <button onClick={deleteBlog}>remove</button>
+          )}
         </div>
       )}
       <p></p>
