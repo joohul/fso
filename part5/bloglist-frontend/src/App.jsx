@@ -15,9 +15,6 @@ import NewBlogForm from './components/NewBlogForm'
 const App = () => {
   const [blogs, setBlogs] = useState([])
   const [user, setUser] = useState(null)
-  const [newTitle, setNewTitle] = useState('')
-  const [newAuthor, setNewAuthor] = useState('')
-  const [newUrl, setNewUrl] = useState('')
   const [successMessage, setSuccessMessage] = useState(null)
   const [errorMessage, setErrorMessage] = useState(null)
 
@@ -66,18 +63,9 @@ const App = () => {
     })
   }
 
-const handleNewBlog = (event, user, blogs, setBlogs, newTitle, setNewTitle, newAuthor, setNewAuthor, newUrl, setNewUrl) => {
-  event.preventDefault()
-  const newBlog = {
-    title: newTitle,
-    author: newAuthor,
-    url: newUrl
-  }
+const handleNewBlog = (newBlog) => {
   blogService.create(newBlog, user.token).then(createdBlog => {
     setBlogs(blogs.concat(createdBlog))
-    setNewTitle('')
-    setNewAuthor('')
-    setNewUrl('')
     showSuccess(`a new blog ${createdBlog.title} by ${createdBlog.author} added`)
     blogFormRef.current.toggleVisibility()
   })
@@ -107,7 +95,7 @@ const handleNewBlog = (event, user, blogs, setBlogs, newTitle, setNewTitle, newA
         }}>logout</button>
         <p></p>
         <Togglable buttonLabel="create new blog" ref={blogFormRef}>
-          <NewBlogForm handleNewBlog={handleNewBlog} user={user} blogs={blogs} setBlogs={setBlogs} newTitle={newTitle} setNewTitle={setNewTitle} newAuthor={newAuthor} setNewAuthor={setNewAuthor} newUrl={newUrl} setNewUrl={setNewUrl} />
+          <NewBlogForm createBlog={handleNewBlog} />
         </Togglable>
         {blogs.map(blog =>
           <Blog key={blog.id} blog={blog} />
