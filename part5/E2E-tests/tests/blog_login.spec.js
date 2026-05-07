@@ -24,7 +24,7 @@ describe('Blog app', () => {
       await page.getByRole('textbox').nth(1).fill('salainen')
       await page.getByRole('button', { name: 'login' }).click()
 
-      await expect(page.getByText('login successful')).toBeVisible()
+      await expect(page.getByText('Matti Luukkainen is logged in')).toBeVisible()
     })
 
     test('fails with wrong credentials', async ({ page }) => {
@@ -35,4 +35,23 @@ describe('Blog app', () => {
       await expect(page.getByText('wrong username or password')).toBeVisible()
     })
   })
+
+  describe('When logged in', () => {
+    beforeEach(async ({ page }) => {
+      await page.getByRole('textbox').nth(0).fill('mluukkai')
+      await page.getByRole('textbox').nth(1).fill('salainen')
+      await page.getByRole('button', { name: 'login' }).click()
+    })
+
+    test('a new blog can be created', async ({ page }) => {
+      await page.getByRole('button', { name: 'create new blog' }).click()
+      await page.getByRole('textbox').nth(0).fill('Test blog')
+      await page.getByRole('textbox').nth(1).fill('Author')
+      await page.getByRole('textbox').nth(2).fill('url.fi')
+      await page.getByRole('button', { name: 'create' }).click()
+
+      await expect(page.getByText('Test blog Author')).toBeVisible()
+    })
+})
+
 })
