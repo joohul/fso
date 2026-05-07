@@ -23,7 +23,7 @@ const App = () => {
   useEffect(() => {
     blogService.getAll().then(blogs =>
       setBlogs( blogs )
-    )  
+    )
   }, [])
 
   useEffect(() => {
@@ -35,7 +35,7 @@ const App = () => {
     }
   }, [])
 
-    const showError = (message) => {
+  const showError = (message) => {
     setErrorMessage(message)
     setTimeout(() => {
       setErrorMessage(null)
@@ -89,11 +89,11 @@ const App = () => {
 
   if (!user) {
     return (
-    <div>
+      <div>
         <SuccessNotification message={successMessage} />
         <ErrorNotification message={errorMessage} />
-      <LoginForm onLogin={setUser} handleLogin={handleLogin} />
-    </div>
+        <LoginForm onLogin={setUser} handleLogin={handleLogin} />
+      </div>
     )
   }
   else{
@@ -118,7 +118,7 @@ const App = () => {
         )}
       </div>
     )
-}
+  }
 }
 
 export default App

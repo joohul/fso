@@ -1,5 +1,5 @@
 const LoginForm = (props) => {
-  const {onLogin, handleLogin} = props
+  const { onLogin, handleLogin } = props
   return (
     <div>
       <h2>log in to application</h2>
