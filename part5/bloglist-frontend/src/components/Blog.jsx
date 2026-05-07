@@ -1,7 +1,14 @@
 import { useState } from 'react'
 
-const Blog = ({ blog }) => {
+const Blog = ({ blog, updateBlog }) => {
   const [showDetails, setShowDetails] = useState(false)
+
+  const addLike = (event) => {
+    event.preventDefault()
+    const newBlog = {...blog, likes: blog.likes + 1 }
+    newBlog.user = blog.user.id // Pass ID instead of full user object to backend
+    updateBlog(newBlog)
+  }
 
   return (
     <div>
@@ -12,9 +19,10 @@ const Blog = ({ blog }) => {
       {showDetails && (
         <div>
           <p>{blog.url}</p>
-          <p>{blog.likes} likes</p>
+          {blog.likes} likes <button onClick={addLike}>like</button>
         </div>
       )}
+      <p></p>
     </div>
   )
 }

@@ -63,12 +63,18 @@ const App = () => {
     })
   }
 
-const handleNewBlog = (newBlog) => {
-  blogService.create(newBlog, user.token).then(createdBlog => {
-    setBlogs(blogs.concat(createdBlog))
-    showSuccess(`a new blog ${createdBlog.title} by ${createdBlog.author} added`)
-    blogFormRef.current.toggleVisibility()
-  })
+  const handleNewBlog = (newBlog) => {
+    blogService.create(newBlog, user.token).then(createdBlog => {
+      setBlogs(blogs.concat(createdBlog))
+      showSuccess(`a new blog ${createdBlog.title} by ${createdBlog.author} added`)
+      blogFormRef.current.toggleVisibility()
+    })
+  }
+
+  const handleUpdateBlog = (updatedBlog) => {
+    blogService.update(updatedBlog.id, updatedBlog, user.token).then(returnedBlog => {
+      setBlogs(blogs.map(blog => blog.id === returnedBlog.id ? returnedBlog : blog))
+    })
   }
 
   if (!user) {
@@ -98,7 +104,7 @@ const handleNewBlog = (newBlog) => {
           <NewBlogForm createBlog={handleNewBlog} />
         </Togglable>
         {blogs.map(blog =>
-          <Blog key={blog.id} blog={blog} />
+          <Blog key={blog.id} blog={blog} updateBlog={handleUpdateBlog} />
         )}
       </div>
     )
