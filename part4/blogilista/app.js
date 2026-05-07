@@ -1,7 +1,6 @@
 //const config = require('./utils/config')
 const Blog = require('./models/blog')
 const User = require('./models/user')
-const jwt = require('jsonwebtoken')
 const express = require('express')
 const app = express()
 app.use(express.json())
