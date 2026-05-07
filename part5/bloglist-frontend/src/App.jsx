@@ -65,6 +65,8 @@ const App = () => {
 
   const handleNewBlog = (newBlog) => {
     blogService.create(newBlog, user.token).then(createdBlog => {
+      // Ensure the created blog includes the current user object so UI updates immediately
+      createdBlog.user = user
       setBlogs(blogs.concat(createdBlog))
       showSuccess(`a new blog ${createdBlog.title} by ${createdBlog.author} added`)
       blogFormRef.current.toggleVisibility()
