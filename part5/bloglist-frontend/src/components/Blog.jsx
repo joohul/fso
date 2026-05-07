@@ -21,8 +21,6 @@ const Blog = ({ blog, updateBlog, removeBlog, user }) => {
     }
   }
 
-  console.log('blog user:', blog.user)
-  console.log('current user:', user)
 
   return (
     <div>
