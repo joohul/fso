@@ -6,6 +6,7 @@ import loginService from './services/login'
 
 import SuccessNotification from './components/SuccessNotification'
 import ErrorNotification from './components/ErrorNotification'
+import Togglable from './components/Togglable'
 
 import LoginForm from './components/LoginForm'
 import NewBlogForm from './components/NewBlogForm'
@@ -102,7 +103,9 @@ const handleNewBlog = (event, user, blogs, setBlogs, newTitle, setNewTitle, newA
           showSuccess('logged out')
         }}>logout</button>
         <p></p>
-        <NewBlogForm handleNewBlog={handleNewBlog} user={user} blogs={blogs} setBlogs={setBlogs} newTitle={newTitle} setNewTitle={setNewTitle} newAuthor={newAuthor} setNewAuthor={setNewAuthor} newUrl={newUrl} setNewUrl={setNewUrl} />
+        <Togglable buttonLabel="create new blog">
+          <NewBlogForm handleNewBlog={handleNewBlog} user={user} blogs={blogs} setBlogs={setBlogs} newTitle={newTitle} setNewTitle={setNewTitle} newAuthor={newAuthor} setNewAuthor={setNewAuthor} newUrl={newUrl} setNewUrl={setNewUrl} />
+        </Togglable>
         {blogs.map(blog =>
           <Blog key={blog.id} blog={blog} />
         )}
