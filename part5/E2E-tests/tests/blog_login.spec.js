@@ -52,6 +52,31 @@ describe('Blog app', () => {
 
       await expect(page.getByText('Test blog Author')).toBeVisible()
     })
-})
 
+    test('a blog can be liked', async ({ page }) => {
+      await page.getByRole('button', { name: 'create new blog' }).click()
+      await page.getByRole('textbox').nth(0).fill('Test blog')
+      await page.getByRole('textbox').nth(1).fill('Author')
+      await page.getByRole('textbox').nth(2).fill('url.fi')
+      await page.getByRole('button', { name: 'create' }).click()
+
+      await page.getByRole('button', { name: 'show details' }).click()
+      await page.getByRole('button', { name: 'like' }).click()
+
+      await expect(page.getByText('1 likes')).toBeVisible()
+    })
+
+    test('a blog can be deleted by user who created it', async ({ page }) => {
+      await page.getByRole('button', { name: 'create new blog' }).click()
+      await page.getByRole('textbox').nth(0).fill('Test blog')
+      await page.getByRole('textbox').nth(1).fill('Author')
+      await page.getByRole('textbox').nth(2).fill('url.fi')
+      await page.getByRole('button', { name: 'create' }).click()
+      
+      await page.getByRole('button', { name: 'show details' }).click()
+      await page.getByRole('button', { name: 'remove' }).click()
+
+      await expect(page.getByText('Test blog Author')).not.toBeVisible()
+    })
+  })
 })
