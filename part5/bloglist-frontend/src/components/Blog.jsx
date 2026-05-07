@@ -8,6 +8,7 @@ const Blog = ({ blog, updateBlog }) => {
     const newBlog = {...blog, likes: blog.likes + 1 }
     newBlog.user = blog.user.id // Pass ID instead of full user object to backend
     updateBlog(newBlog)
+    newBlog.user = blog.user // Restore full user object for frontend state
   }
 
   return (
@@ -20,6 +21,7 @@ const Blog = ({ blog, updateBlog }) => {
         <div>
           <p>{blog.url}</p>
           {blog.likes} likes <button onClick={addLike}>like</button>
+          <p>{blog.user.name}</p>
         </div>
       )}
       <p></p>

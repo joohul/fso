@@ -72,9 +72,12 @@ const App = () => {
   }
 
   const handleUpdateBlog = (updatedBlog) => {
+    const blogUser = blogs.find(blog => blog.id === updatedBlog.id)?.user // Find the user from the current state of blogs
     blogService.update(updatedBlog.id, updatedBlog, user.token).then(returnedBlog => {
+      returnedBlog.user = blogUser // Restore the user information in the returned blog
       setBlogs(blogs.map(blog => blog.id === returnedBlog.id ? returnedBlog : blog))
     })
+
   }
 
   if (!user) {
