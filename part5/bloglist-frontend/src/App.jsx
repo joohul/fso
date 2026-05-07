@@ -7,45 +7,9 @@ import loginService from './services/login'
 import SuccessNotification from './components/SuccessNotification'
 import ErrorNotification from './components/ErrorNotification'
 
+import LoginForm from './components/LoginForm'
+import NewBlogForm from './components/NewBlogForm'
 
-const LoginForm = (props) => {
-  const {onLogin, handleLogin} = props
-  return (
-    <div>
-      <h2>log in to application</h2>
-      <form onSubmit={(event) => handleLogin(event, onLogin)}>
-        <div>
-          username: <input type="text" name="Username" />
-        </div>
-        <div>
-          password: <input type="password" name="Password" />
-        </div>
-        <button type="submit">login</button>
-      </form>
-    </div>
-  )
-}
-
-const NewBlogForm = (props) => {
-  const { handleNewBlog, user, blogs, setBlogs, newTitle, setNewTitle, newAuthor, setNewAuthor, newUrl, setNewUrl } = props
-  return (
-    <div>
-      <h2>create new</h2>
-      <form onSubmit={(event) => handleNewBlog(event, user, blogs, setBlogs, newTitle, setNewTitle, newAuthor, setNewAuthor, newUrl, setNewUrl)}>
-        <div>
-          title:<input value={newTitle} onChange={(event) => setNewTitle(event.target.value)} type="text" name="Title" />
-        </div>
-        <div>
-          author: <input value={newAuthor} onChange={(event) => setNewAuthor(event.target.value)} type="text" name="Author" />
-        </div>
-        <div>
-          url: <input value={newUrl} onChange={(event) => setNewUrl(event.target.value)} type="text" name="Url" />
-        </div>
-        <button type="submit">create</button>
-      </form>
-    </div>
-  )
-}
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
