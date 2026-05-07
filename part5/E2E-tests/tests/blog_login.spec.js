@@ -66,6 +66,17 @@ describe('Blog app', () => {
       await expect(page.getByText('1 likes')).toBeVisible()
     })
 
+    test('remove button is visible for the user who created the blog', async ({ page }) => {
+      await page.getByRole('button', { name: 'create new blog' }).click()
+      await page.getByRole('textbox').nth(0).fill('Test blog')
+      await page.getByRole('textbox').nth(1).fill('Author')
+      await page.getByRole('textbox').nth(2).fill('url.fi')
+      await page.getByRole('button', { name: 'create' }).click()
+
+      await page.getByRole('button', { name: 'show details' }).click()
+      await expect(page.getByRole('button', { name: 'remove' })).toBeVisible()
+    })
+
     test('a blog can be deleted by user who created it', async ({ page }) => {
       await page.getByRole('button', { name: 'create new blog' }).click()
       await page.getByRole('textbox').nth(0).fill('Test blog')
@@ -74,6 +85,7 @@ describe('Blog app', () => {
       await page.getByRole('button', { name: 'create' }).click()
       
       await page.getByRole('button', { name: 'show details' }).click()
+      page.once('dialog', dialog => dialog.accept())
       await page.getByRole('button', { name: 'remove' }).click()
 
       await expect(page.getByText('Test blog Author')).not.toBeVisible()
