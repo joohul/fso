@@ -1,12 +1,14 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import Blog from './Blog'
+import { MemoryRouter, Routes, Route } from 'react-router-dom'
+import BlogView from './BlogView'
 
 test('renders content', () => {
   const blog = {
     title: 'Title',
     author: 'Author',
     url: 'URL',
+    id: '12345',
     likes: 0,
     user: {
       id: '12345',
@@ -14,7 +16,13 @@ test('renders content', () => {
     }
   }
 
-  render(<Blog blog={blog} />)
+  render(
+    <MemoryRouter initialEntries={[`/blogs/${blog.id}`]}>
+      <Routes>
+        <Route path="/blogs/:id" element={<BlogView blogs={[blog]} />} />
+      </Routes>
+    </MemoryRouter>
+  )
 
   const element = screen.getByText('Title Author')
 
@@ -27,28 +35,24 @@ test('clicking the button shows additional information', async () => {
     title: 'Title',
     author: 'Author',
     url: 'URL',
+    id: '12345',
     likes: 0,
     user: {
       id: '12345',
       name: 'Test User'
     }
   }
-
   render(
-    <Blog blog={blog} />
+    <MemoryRouter initialEntries={[`/blogs/${blog.id}`]}>
+      <Routes>
+        <Route path="/blogs/:id" element={<BlogView blogs={[blog]} />} />
+      </Routes>
+    </MemoryRouter>
   )
 
-  const user = userEvent.setup()
-  const button = screen.getByText('show details')
-  await user.click(button)
-
-  const urlElement = screen.getByText('URL')
-  const likesElement = screen.getByText('0 likes')
-  const userElement = screen.getByText('Test User')
-  
-  expect(urlElement).toBeDefined()
-  expect(likesElement).toBeDefined()
-  expect(userElement).toBeDefined()
+  expect(screen.getByText('URL')).toBeDefined()
+  expect(screen.getByText('0 likes')).toBeDefined()
+  expect(screen.getByText(/Test User/)).toBeDefined()
 })
 
 test('clicking the like button twice calls event handler twice', async () => {
@@ -56,6 +60,7 @@ test('clicking the like button twice calls event handler twice', async () => {
     title: 'Title',
     author: 'Author',
     url: 'URL',
+    id: '12345',
     likes: 0,
     user: {
       id: '12345',
@@ -65,14 +70,17 @@ test('clicking the like button twice calls event handler twice', async () => {
 
   const mockHandler = vi.fn()
 
+  const currentUser = { id: 'someone', name: 'Some User' }
+
   render(
-    <Blog blog={blog} updateBlog={mockHandler} />
+    <MemoryRouter initialEntries={[`/blogs/${blog.id}`]}>
+      <Routes>
+        <Route path="/blogs/:id" element={<BlogView blogs={[blog]} user={currentUser} handleUpdateBlog={mockHandler} />} />
+      </Routes>
+    </MemoryRouter>
   )
 
   const user = userEvent.setup()
-  const showDetailsButton = screen.getByText('show details')
-  await user.click(showDetailsButton)
-
   const likeButton = screen.getByText('like')
   await user.click(likeButton)
   await user.click(likeButton)
@@ -85,22 +93,24 @@ test('blog information is displayed to unauthenticated users without action butt
     title: 'Title',
     author: 'Author',
     url: 'URL',
+    id: '12345',
     likes: 0,
     user: {
       id: '12345',
       name: 'Test User'
     }
   }
+  render(
+    <MemoryRouter initialEntries={[`/blogs/${blog.id}`]}>
+      <Routes>
+        <Route path="/blogs/:id" element={<BlogView blogs={[blog]} />} />
+      </Routes>
+    </MemoryRouter>
+  )
 
-  render(<Blog blog={blog} updateBlog={vi.fn()} removeBlog={vi.fn()} />)
-
-  const user = userEvent.setup()
-  const showDetailsButton = screen.getByText('show details')
-  await user.click(showDetailsButton)
-  
   expect(screen.getByText('URL')).toBeDefined()
   expect(screen.getByText('0 likes')).toBeDefined()
-  expect(screen.getByText('Test User')).toBeDefined()
+  expect(screen.getByText(/Test User/)).toBeDefined()
   expect(screen.queryByText('remove')).toBeNull()
 })
 
@@ -109,6 +119,7 @@ test('authenticated user who is not the blog creator sees only the like button',
     title: 'Title',
     author: 'Author',
     url: 'URL',
+    id: '12345',
     likes: 0,
     user: {
       id: '12345',
@@ -120,12 +131,13 @@ test('authenticated user who is not the blog creator sees only the like button',
     id: 'abcde',
     name: 'Second User'
   }
-
-  render(<Blog blog={blog} updateBlog={vi.fn()} removeBlog={vi.fn()} user={currentUser} />)
-
-  const user = userEvent.setup()
-  const showDetailsButton = screen.getByText('show details')
-  await user.click(showDetailsButton)
+  render(
+    <MemoryRouter initialEntries={[`/blogs/${blog.id}`]}>
+      <Routes>
+        <Route path="/blogs/:id" element={<BlogView blogs={[blog]} user={currentUser} />} />
+      </Routes>
+    </MemoryRouter>
+  )
 
   expect(screen.getByText('like')).toBeDefined()
   expect(screen.queryByText('remove')).toBeNull()
@@ -136,6 +148,7 @@ test('blog creator sees both like button and delete button', async () => {
     title: 'Title',
     author: 'Author',
     url: 'URL',
+    id: '12345',
     likes: 0,
     user: {
       id: '12345',
@@ -147,12 +160,13 @@ test('blog creator sees both like button and delete button', async () => {
     id: '12345',
     name: 'Creator'
   }
-
-  render(<Blog blog={blog} updateBlog={vi.fn()} removeBlog={vi.fn()} user={currentUser} />)
-
-  const user = userEvent.setup()
-  const showDetailsButton = screen.getByText('show details')
-  await user.click(showDetailsButton)
+  render(
+    <MemoryRouter initialEntries={[`/blogs/${blog.id}`]}>
+      <Routes>
+        <Route path="/blogs/:id" element={<BlogView blogs={[blog]} user={currentUser} handleRemoveBlog={vi.fn()} handleUpdateBlog={vi.fn()} />} />
+      </Routes>
+    </MemoryRouter>
+  )
 
   expect(screen.getByText('like')).toBeDefined()
   expect(screen.getByText('remove')).toBeDefined()
