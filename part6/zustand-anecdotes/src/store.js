@@ -23,11 +23,33 @@ const useAnecdoteStore = create((set) => ({
   filter: '',
   anecdotes: [],
   actions: {
-    vote: (id) => set((state) => ({
-      anecdotes: state.anecdotes.map((a) =>
-        a.id === id ? { ...a, votes: a.votes + 1 } : a
-      )
-    })),
+    vote: async (id) => {
+      const anecdoteToVote = useAnecdoteStore.getState().anecdotes.find((a) => a.id === id)
+
+      const response = await fetch(`${baseUrl}/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          ...anecdoteToVote,
+          votes: anecdoteToVote.votes + 1
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to vote')
+      }
+
+      const updatedAnecdote = await response.json()
+
+      set((state) => ({
+        anecdotes: state.anecdotes.map((a) =>
+          a.id === id ? updatedAnecdote : a
+        )
+      }))
+    },
+
     add: async (content) => {
       const response = await fetch(baseUrl, {
         method: 'POST',
