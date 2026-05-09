@@ -17,8 +17,8 @@ const BlogView = ({ blogs, user, handleUpdateBlog, handleRemoveBlog }) => {
 
   const like = (event) => {
     event.preventDefault()
-    const newBlog = { ...blog, likes: blog.likes + 1 }
-    handleUpdateBlog(newBlog)
+    const newBlog = { ...blog, likes: blog.likes + 1, user: blog.user.id }
+    handleUpdateBlog(newBlog) 
   }
 
   const remove = (event) => {
@@ -30,9 +30,12 @@ const BlogView = ({ blogs, user, handleUpdateBlog, handleRemoveBlog }) => {
 
   return (
     <div>
-      <h2>{blog.title} {blog.author}</h2>
+      <h2> blogs </h2>
+      <h3>{blog.title} {blog.author}</h3>
       <p>{blog.url}</p>
-      <p>{blog.likes} likes <button onClick={like}>like</button></p>
+      <div>
+        <span>{blog.likes} likes </span> {(user) && (<button onClick={like}>like</button>)}
+      </div>
       <p>added by {blog.user?.name}</p>
       {(blog.user && user && blog.user.name === user.name) && (
         <button onClick={remove}>remove</button>
