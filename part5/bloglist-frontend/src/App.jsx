@@ -15,6 +15,7 @@ import Togglable from './components/Togglable'
 
 import LoginForm from './components/LoginForm'
 import NewBlogForm from './components/NewBlogForm'
+import BlogView from './components/BlogView'
 
 
 const AppContent = () => {
@@ -125,12 +126,16 @@ const AppContent = () => {
         <Route path="/" element={
           <div>
             <h2>blogs</h2>
-            <p></p>
             {blogs.sort((a, b) => b.likes - a.likes).map(blog =>
-              <Blog key={blog.id} blog={blog} updateBlog={handleUpdateBlog} removeBlog={handleRemoveBlog} user={user} />
+              <div key={blog.id}>
+                <Link to={`/blogs/${blog.id}`}>
+                  {blog.title} {blog.author}
+                </Link>
+              </div>
             )}
           </div>
         } />
+        <Route path="/blogs/:id" element={<BlogView blogs={blogs} user={user} handleUpdateBlog={handleUpdateBlog} handleRemoveBlog={handleRemoveBlog} />} />
       </Routes>
     </div>
   )
