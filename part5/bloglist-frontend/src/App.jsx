@@ -17,6 +17,8 @@ import LoginForm from './components/LoginForm'
 import NewBlogForm from './components/NewBlogForm'
 import BlogView from './components/BlogView'
 
+import { AppBar, Button, Container, Toolbar, Typography } from '@mui/material'
+
 
 const AppContent = () => {
   const [blogs, setBlogs] = useState([])
@@ -98,25 +100,26 @@ const AppContent = () => {
     })
   }
 
-  const padding = {
-    padding: 5
-  }
-
   return (
     <div>
-      <div>
-        <Link style={padding} to="/">home</Link>
-        {user && <Link style={padding} to="/create">create new</Link>}
-        {user
-          ? <button style={padding} onClick={() => {
-              setUser(null)
-              window.localStorage.removeItem('loggedBlogAppUser')
-              showSuccess('logged out')
-              navigate('/')
-            }}>logout</button>
-          : <Link style={padding} to="/login">login</Link>
-        }
-      </div>
+      <AppBar position="static" elevation={0} color="transparent" sx={{ mb: 2 }}>
+        <Toolbar sx={{ gap: 1, flexWrap: 'wrap' }}>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            bloglist
+          </Typography>
+          <Button component={Link} to="/" color="inherit">home</Button>
+          {user && <Button component={Link} to="/create" color="inherit">create new</Button>}
+          {user
+            ? <Button color="inherit" onClick={() => {
+                setUser(null)
+                window.localStorage.removeItem('loggedBlogAppUser')
+                showSuccess('logged out')
+                navigate('/')
+              }}>logout</Button>
+            : <Button component={Link} to="/login" color="inherit">login</Button>
+          }
+        </Toolbar>
+      </AppBar>
       <div>
         <SuccessNotification message={successMessage} />
         <ErrorNotification message={errorMessage} />
@@ -149,9 +152,11 @@ const AppContent = () => {
 
 const App = () => {
   return (
-    <Router>
-      <AppContent />
-    </Router>
+    <Container>
+      <Router>
+        <AppContent />
+      </Router>
+    </Container>
   )
 }
 
