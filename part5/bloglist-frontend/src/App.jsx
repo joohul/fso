@@ -76,7 +76,8 @@ const AppContent = () => {
       createdBlog.user = user
       setBlogs(blogs.concat(createdBlog))
       showSuccess(`a new blog ${createdBlog.title} by ${createdBlog.author} added`)
-      blogFormRef.current.toggleVisibility()
+      //blogFormRef.current.toggleVisibility()
+      navigate('/')
     })
   }
 
@@ -93,6 +94,7 @@ const AppContent = () => {
     blogService.deleteBlog(blogId, user.token).then(() => {
       setBlogs(blogs.filter(blog => blog.id !== blogId))
       showSuccess('blog removed successfully')
+      navigate('/')
     })
   }
 
@@ -104,6 +106,7 @@ const AppContent = () => {
     <div>
       <div>
         <Link style={padding} to="/">home</Link>
+        {user && <Link style={padding} to="/create">create new</Link>}
         {user
           ? <button style={padding} onClick={() => {
               setUser(null)
@@ -136,6 +139,9 @@ const AppContent = () => {
           </div>
         } />
         <Route path="/blogs/:id" element={<BlogView blogs={blogs} user={user} handleUpdateBlog={handleUpdateBlog} handleRemoveBlog={handleRemoveBlog} />} />
+        <Route path="/create" element={
+          <NewBlogForm createBlog={handleNewBlog} />
+        } />
       </Routes>
     </div>
   )
