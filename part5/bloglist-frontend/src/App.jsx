@@ -4,6 +4,11 @@ import Blog from './components/Blog'
 import blogService from './services/blogs'
 import loginService from './services/login'
 
+import {
+  BrowserRouter as Router,
+  Routes, Route, Link, useNavigate
+} from 'react-router-dom'
+
 import SuccessNotification from './components/SuccessNotification'
 import ErrorNotification from './components/ErrorNotification'
 import Togglable from './components/Togglable'
@@ -12,11 +17,12 @@ import LoginForm from './components/LoginForm'
 import NewBlogForm from './components/NewBlogForm'
 
 
-const App = () => {
+const AppContent = () => {
   const [blogs, setBlogs] = useState([])
   const [user, setUser] = useState(null)
   const [successMessage, setSuccessMessage] = useState(null)
   const [errorMessage, setErrorMessage] = useState(null)
+  const navigate = useNavigate()
 
   const blogFormRef = useRef()
 
@@ -31,7 +37,6 @@ const App = () => {
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON)
       setUser(user)
-      // blogService.setToken(user.token) // TODO: implement.
     }
   }, [])
 
@@ -58,6 +63,7 @@ const App = () => {
       setUser(user)
       window.localStorage.setItem('loggedBlogAppUser', JSON.stringify(user))
       showSuccess('login successful')
+      navigate('/')
     }).catch(() => {
       showError('wrong username or password')
     })
@@ -89,38 +95,53 @@ const App = () => {
     })
   }
 
-  if (!user) {
-    return (
+  const padding = {
+    padding: 5
+  }
+
+  return (
+    <div>
+      <div>
+        <Link style={padding} to="/">home</Link>
+        {user
+          ? <button style={padding} onClick={() => {
+              setUser(null)
+              window.localStorage.removeItem('loggedBlogAppUser')
+              showSuccess('logged out')
+              navigate('/')
+            }}>logout</button>
+          : <Link style={padding} to="/login">login</Link>
+        }
+      </div>
       <div>
         <SuccessNotification message={successMessage} />
         <ErrorNotification message={errorMessage} />
-        <LoginForm onLogin={setUser} handleLogin={handleLogin} />
       </div>
-    )
-  }
-  else{
-    return (
-      <div>
-        <SuccessNotification message={successMessage} />
-        <ErrorNotification message={errorMessage} />
-        <h2>blogs</h2>
-        <p></p>
-        <p>{user.name} is logged in</p>
-        <button onClick={() => {
-          setUser(null)
-          window.localStorage.removeItem('loggedBlogAppUser')
-          showSuccess('logged out')
-        }}>logout</button>
-        <p></p>
-        <Togglable buttonLabel="create new blog" ref={blogFormRef}>
-          <NewBlogForm createBlog={handleNewBlog} />
-        </Togglable>
-        {blogs.sort((a, b) => b.likes - a.likes).map(blog =>
-          <Blog key={blog.id} blog={blog} updateBlog={handleUpdateBlog} removeBlog={handleRemoveBlog} user={user} />
-        )}
-      </div>
-    )
-  }
+
+      <Routes>
+        <Route path="/login" element={
+          <LoginForm onLogin={setUser} handleLogin={handleLogin} />
+        } />
+        <Route path="/" element={
+          <div>
+            <h2>blogs</h2>
+            <p></p>
+            {blogs.sort((a, b) => b.likes - a.likes).map(blog =>
+              <Blog key={blog.id} blog={blog} updateBlog={handleUpdateBlog} removeBlog={handleRemoveBlog} user={user} />
+            )}
+          </div>
+        } />
+      </Routes>
+    </div>
+  )
+}
+
+const App = () => {
+  return (
+    <Router>
+      <AppContent />
+    </Router>
+  )
 }
 
 export default App
