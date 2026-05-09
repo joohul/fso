@@ -1,47 +1,18 @@
 import { create } from 'zustand'
-
-const baseUrl = 'http://localhost:3001/anecdotes'
-
-const getAll = async () => {
-  const response = await fetch(baseUrl)
-
-  if (!response.ok) {
-    throw new Error('Failed to fetch')
-  }
-
-  const data = await response.json()
-  return data
-}
-
-const initialData = getAll().then(data => {
-  return data
-})
-
-const getId = () => (100000 * Math.random()).toFixed(0)
+import anecdoteService from './services/anecdotes'
 
 const useAnecdoteStore = create((set) => ({
   filter: '',
   anecdotes: [],
   actions: {
+    initialize: async () => {
+      const anecdotes = await anecdoteService.getAll()
+      set({ anecdotes })
+    },
+
     vote: async (id) => {
       const anecdoteToVote = useAnecdoteStore.getState().anecdotes.find((a) => a.id === id)
-
-      const response = await fetch(`${baseUrl}/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          ...anecdoteToVote,
-          votes: anecdoteToVote.votes + 1
-        })
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to vote')
-      }
-
-      const updatedAnecdote = await response.json()
+      const updatedAnecdote = await anecdoteService.vote(anecdoteToVote)
 
       set((state) => ({
         anecdotes: state.anecdotes.map((a) =>
@@ -51,19 +22,7 @@ const useAnecdoteStore = create((set) => ({
     },
 
     add: async (content) => {
-      const response = await fetch(baseUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ content, votes: 0 })
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to create anecdote')
-      }
-
-      const savedAnecdote = await response.json()
+      const savedAnecdote = await anecdoteService.create(content)
 
       set((state) => ({
         anecdotes: [...state.anecdotes, savedAnecdote]
@@ -71,13 +30,7 @@ const useAnecdoteStore = create((set) => ({
     },
 
     delete: async (id) => {
-      const response = await fetch(`${baseUrl}/${id}`, {
-        method: 'DELETE'
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to delete anecdote')
-      }
+      await anecdoteService.remove(id)
 
       set((state) => ({
         anecdotes: state.anecdotes.filter((a) => a.id !== id)
@@ -85,10 +38,6 @@ const useAnecdoteStore = create((set) => ({
     }
   }
 }))
-
-initialData.then((anecdotes) => {
-  useAnecdoteStore.setState({ anecdotes })
-})
 
 const useNotificationStore = create((set) => ({
   notification: null,
@@ -109,3 +58,5 @@ export const useAnecdotes = () => {
   return anecdotes.filter(a => a.content.toLowerCase().includes(filter.toLowerCase()))
 }
 export const useAnecdoteActions = () => useAnecdoteStore((state) => state.actions)
+
+export default useAnecdoteStore

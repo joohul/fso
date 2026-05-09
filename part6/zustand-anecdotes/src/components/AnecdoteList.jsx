@@ -14,9 +14,9 @@ const AnecdoteList = () => {
       <h2>Anecdotes</h2>
       {anecdotes.toSorted((a, b) => b.votes - a.votes).map(anecdote => (
         <div key={anecdote.id}>
-          <div>{anecdote.content}</div>
+          <div className="content">{anecdote.content}</div>
           <div>
-            has {anecdote.votes}
+            has {anecdote.votes} votes 
             <button onClick={() => vote(anecdote.id)}>vote</button>
             {anecdote.votes == 0 && (<button onClick={() => {
               actions.delete(anecdote.id)
