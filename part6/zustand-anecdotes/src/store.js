@@ -1,7 +1,8 @@
 import { create } from 'zustand'
 
+const baseUrl = 'http://localhost:3001/anecdotes'
+
 const getAll = async () => {
-  const baseUrl = 'http://localhost:3001/anecdotes'
   const response = await fetch(baseUrl)
 
   if (!response.ok) {
@@ -27,9 +28,25 @@ const useAnecdoteStore = create((set) => ({
         a.id === id ? { ...a, votes: a.votes + 1 } : a
       )
     })),
-    add: (content) => set((state) => ({
-      anecdotes: [...state.anecdotes, { content, id: getId(), votes: 0 }]
-    }))
+    add: async (content) => {
+      const response = await fetch(baseUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ content, votes: 0 })
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to create anecdote')
+      }
+
+      const savedAnecdote = await response.json()
+
+      set((state) => ({
+        anecdotes: [...state.anecdotes, savedAnecdote]
+      }))
+    }
   }
 }))
 
