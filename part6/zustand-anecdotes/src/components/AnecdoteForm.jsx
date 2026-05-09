@@ -1,8 +1,9 @@
-import { useAnecdotes, useAnecdoteActions } from '../store'
+import { useAnecdotes, useAnecdoteActions, useSetNotification } from '../store'
 
 const AnecdoteForm = () => {
   const anecdotes = useAnecdotes()
   const actions = useAnecdoteActions()
+  const setNotification = useSetNotification()
   const add = content => actions.add(content)
 
   const addAnecdote = (event) => {
@@ -10,6 +11,7 @@ const AnecdoteForm = () => {
     const content = event.target.anecdote.value
     add(content)
     event.target.anecdote.value = ''
+    setNotification(`You created '${content}'`)
   }
 
   return (

@@ -76,6 +76,17 @@ initialData.then((anecdotes) => {
   useAnecdoteStore.setState({ anecdotes })
 })
 
+const useNotificationStore = create((set) => ({
+  notification: null,
+  setNotification: (message) => {
+    set({ notification: message })
+    setTimeout(() => set({ notification: null }), 5000)
+  }
+}))
+
+export const useNotification = () => useNotificationStore((state) => state.notification)
+export const useSetNotification = () => useNotificationStore((state) => state.setNotification)
+
 export const setFilter = (filter) => useAnecdoteStore.setState({ filter })
 export const useAnecdotes = () => {
   const filter = useAnecdoteStore((state) => state.filter)

@@ -1,9 +1,13 @@
-import { useAnecdotes, useAnecdoteActions } from '../store'
+import { useAnecdotes, useAnecdoteActions, useSetNotification } from '../store'
 
 const AnecdoteList = () => {
   const anecdotes = useAnecdotes()
   const actions = useAnecdoteActions()
-  const vote = id => actions.vote(id)
+  const setNotification = useSetNotification()
+  const vote = (id) => {
+    actions.vote(id)
+    setNotification(`You voted '${anecdotes.find(a => a.id === id).content}'`)
+  }
 
   return (
     <div>
