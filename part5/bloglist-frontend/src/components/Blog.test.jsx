@@ -79,3 +79,82 @@ test('clicking the like button twice calls event handler twice', async () => {
 
   expect(mockHandler.mock.calls).toHaveLength(2)
 })
+
+test('blog information is displayed to unauthenticated users without action buttons', async () => {
+  const blog = {
+    title: 'Title',
+    author: 'Author',
+    url: 'URL',
+    likes: 0,
+    user: {
+      id: '12345',
+      name: 'Test User'
+    }
+  }
+
+  render(<Blog blog={blog} updateBlog={vi.fn()} removeBlog={vi.fn()} />)
+
+  const user = userEvent.setup()
+  const showDetailsButton = screen.getByText('show details')
+  await user.click(showDetailsButton)
+  
+  expect(screen.getByText('URL')).toBeDefined()
+  expect(screen.getByText('0 likes')).toBeDefined()
+  expect(screen.getByText('Test User')).toBeDefined()
+  expect(screen.queryByText('remove')).toBeNull()
+})
+
+test('authenticated user who is not the blog creator sees only the like button', async () => {
+  const blog = {
+    title: 'Title',
+    author: 'Author',
+    url: 'URL',
+    likes: 0,
+    user: {
+      id: '12345',
+      name: 'Test User'
+    }
+  }
+
+  const currentUser = {
+    id: 'abcde',
+    name: 'Second User'
+  }
+
+  render(<Blog blog={blog} updateBlog={vi.fn()} removeBlog={vi.fn()} user={currentUser} />)
+
+  const user = userEvent.setup()
+  const showDetailsButton = screen.getByText('show details')
+  await user.click(showDetailsButton)
+
+  expect(screen.getByText('like')).toBeDefined()
+  expect(screen.queryByText('remove')).toBeNull()
+})
+
+test('blog creator sees both like button and delete button', async () => {
+  const blog = {
+    title: 'Title',
+    author: 'Author',
+    url: 'URL',
+    likes: 0,
+    user: {
+      id: '12345',
+      name: 'Creator'
+    }
+  }
+
+  const currentUser = {
+    id: '12345',
+    name: 'Creator'
+  }
+
+  render(<Blog blog={blog} updateBlog={vi.fn()} removeBlog={vi.fn()} user={currentUser} />)
+
+  const user = userEvent.setup()
+  const showDetailsButton = screen.getByText('show details')
+  await user.click(showDetailsButton)
+
+  expect(screen.getByText('like')).toBeDefined()
+  expect(screen.getByText('remove')).toBeDefined()
+})
+
