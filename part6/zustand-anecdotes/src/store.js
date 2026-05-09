@@ -68,6 +68,20 @@ const useAnecdoteStore = create((set) => ({
       set((state) => ({
         anecdotes: [...state.anecdotes, savedAnecdote]
       }))
+    },
+
+    delete: async (id) => {
+      const response = await fetch(`${baseUrl}/${id}`, {
+        method: 'DELETE'
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to delete anecdote')
+      }
+
+      set((state) => ({
+        anecdotes: state.anecdotes.filter((a) => a.id !== id)
+      }))
     }
   }
 }))

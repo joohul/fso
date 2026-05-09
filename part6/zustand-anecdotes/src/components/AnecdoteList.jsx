@@ -18,6 +18,10 @@ const AnecdoteList = () => {
           <div>
             has {anecdote.votes}
             <button onClick={() => vote(anecdote.id)}>vote</button>
+            {anecdote.votes == 0 && (<button onClick={() => {
+              actions.delete(anecdote.id)
+              setNotification(`You deleted '${anecdote.content}'`)
+            }}>delete</button>)}
           </div>
         </div>
       ))}
