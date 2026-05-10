@@ -1,15 +1,16 @@
 import AnecdoteForm from './components/AnecdoteForm'
 import Notification from './components/Notification'
 
-import { useQuery } from '@tanstack/react-query'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useAnecdotes } from './hooks/useAnecdotes'
+import { useNotify } from './hooks/useNotify'
 
 const App = () => {
   const { anecdotes, isPending, isError, addAnecdote, voteAnecdote } = useAnecdotes()
+  const { showNotification } = useNotify()
 
   const handleVote = (anecdote) => {
     voteAnecdote(anecdote)
+    showNotification(`anecdote '${anecdote.content}' voted`)
   }
 
   if (isPending) {
