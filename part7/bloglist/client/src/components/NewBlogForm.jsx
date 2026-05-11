@@ -1,20 +1,20 @@
-import { useState } from 'react'
-import { Button, TextField } from '@mui/material'
+import { useState } from "react";
+import { Button, TextField } from "@mui/material";
 
 const NewBlogForm = ({ createBlog }) => {
-  const [newTitle, setNewTitle] = useState('')
-  const [newAuthor, setNewAuthor] = useState('')
-  const [newUrl, setNewUrl] = useState('')
+  const [newTitle, setNewTitle] = useState("");
+  const [newAuthor, setNewAuthor] = useState("");
+  const [newUrl, setNewUrl] = useState("");
 
   const addBlog = (event) => {
-    event.preventDefault()
+    event.preventDefault();
     const newBlog = {
       title: newTitle,
       author: newAuthor,
-      url: newUrl
-    }
-    createBlog(newBlog)
-  }
+      url: newUrl,
+    };
+    createBlog(newBlog);
+  };
 
   return (
     <div>
@@ -49,7 +49,7 @@ const NewBlogForm = ({ createBlog }) => {
         </Button>
       </form>
     </div>
-  )
-}
+  );
+};
 
-export default NewBlogForm
+export default NewBlogForm;

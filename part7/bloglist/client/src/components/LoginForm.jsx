@@ -1,7 +1,7 @@
-import { Button, TextField } from '@mui/material'
+import { Button, TextField } from "@mui/material";
 
 const LoginForm = (props) => {
-  const { onLogin, handleLogin } = props
+  const { onLogin, handleLogin } = props;
 
   return (
     <div>
@@ -18,7 +18,7 @@ const LoginForm = (props) => {
         </Button>
       </form>
     </div>
-  )
-}
+  );
+};
 
-export default LoginForm
+export default LoginForm;
