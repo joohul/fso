@@ -23,10 +23,13 @@ import ErrorBoundary from "./components/ErrorBoundary";
 
 import { AppBar, Button, Container, Toolbar, Typography } from "@mui/material";
 
-import { useNotificationStore } from "./store";
+import { useNotificationStore, useBlogStore } from "./store";
 
 const AppContent = () => {
-  const [blogs, setBlogs] = useState([]);
+  // Maybe not the most elegant way to use Zustand but works well as a drop-in replacement
+  const blogs = useBlogStore((state) => state.blogs);
+  const setBlogs = useBlogStore((state) => state.setBlogs);
+
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
@@ -77,7 +80,7 @@ const AppContent = () => {
     blogService.create(newBlog, user.token).then((createdBlog) => {
       // Ensure the created blog includes the current user object so UI updates immediately
       createdBlog.user = user;
-      setBlogs(blogs.concat(createdBlog));
+      setBlogs([...blogs, createdBlog]);
       showSuccess(
         `a new blog ${createdBlog.title} by ${createdBlog.author} added`,
       );
@@ -92,11 +95,11 @@ const AppContent = () => {
       .update(updatedBlog.id, updatedBlog, user.token)
       .then((returnedBlog) => {
         returnedBlog.user = blogUser; // Restore the user information in the returned blog
-        setBlogs(
+        const newBlogs = 
           blogs.map((blog) =>
             blog.id === returnedBlog.id ? returnedBlog : blog,
-          ),
-        );
+        )
+        setBlogs(newBlogs);
       });
   };
 

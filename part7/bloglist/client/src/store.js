@@ -16,3 +16,10 @@ export const useNotificationStore = create((set) => ({
     }, 5000);
   },
 }));
+
+export const useBlogStore = create((set) => ({
+  blogs: [],
+  setBlogs: (blogs) => set({ blogs }),
+}));
+
+
