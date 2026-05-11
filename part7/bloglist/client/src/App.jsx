@@ -17,6 +17,8 @@ import LoginForm from './components/LoginForm'
 import NewBlogForm from './components/NewBlogForm'
 import BlogView from './components/BlogView'
 
+import ErrorBoundary from './components/ErrorBoundary'
+
 import { AppBar, Button, Container, Toolbar, Typography } from '@mui/material'
 
 
@@ -120,32 +122,34 @@ const AppContent = () => {
           }
         </Toolbar>
       </AppBar>
-      <div>
-        <SuccessNotification message={successMessage} />
-        <ErrorNotification message={errorMessage} />
-      </div>
+      <ErrorBoundary>
+        <div>
+          <SuccessNotification message={successMessage} />
+          <ErrorNotification message={errorMessage} />
+        </div>
 
-      <Routes>
-        <Route path="/login" element={
-          <LoginForm onLogin={setUser} handleLogin={handleLogin} />
-        } />
-        <Route path="/" element={
-          <div>
-            <h2>blogs</h2>
-            {blogs.sort((a, b) => b.likes - a.likes).map(blog =>
-              <div key={blog.id}>
-                <Link to={`/blogs/${blog.id}`}>
-                  {blog.title} {blog.author}
-                </Link>
-              </div>
-            )}
-          </div>
-        } />
-        <Route path="/blogs/:id" element={<BlogView blogs={blogs} user={user} handleUpdateBlog={handleUpdateBlog} handleRemoveBlog={handleRemoveBlog} />} />
-        <Route path="/create" element={
-          <NewBlogForm createBlog={handleNewBlog} />
-        } />
-      </Routes>
+        <Routes>
+          <Route path="/login" element={
+            <LoginForm onLogin={setUser} handleLogin={handleLogin} />
+          } />
+          <Route path="/" element={
+            <div>
+              <h2>blogs</h2>
+              {blogs.sort((a, b) => b.likes - a.likes).map(blog =>
+                <div key={blog.id}>
+                  <Link to={`/blogs/${blog.id}`}>
+                    {blog.title} {blog.author}
+                  </Link>
+                </div>
+              )}
+            </div>
+          } />
+          <Route path="/blogs/:id" element={<BlogView blogs={blogs} user={user} handleUpdateBlog={handleUpdateBlog} handleRemoveBlog={handleRemoveBlog} />} />
+          <Route path="/create" element={
+            <NewBlogForm createBlog={handleNewBlog} />
+          } />
+        </Routes>
+      </ErrorBoundary>
     </div>
   )
 }
