@@ -1,11 +1,20 @@
 import { useParams, Link } from "react-router-dom";
 import React from "react";
 import { Box, Button, Paper, Stack, Typography } from "@mui/material";
+import blogService from "../services/blogs";
+import { useBlogStore, useNotificationStore, useUserStore } from "../store";
+import { useNavigate } from "react-router-dom";
 
-const BlogView = ({ blogs, user, handleUpdateBlog, handleRemoveBlog }) => {
+const BlogView = () => {
   const { id } = useParams();
+  const blogs = useBlogStore((state) => state.blogs);
+  const currentUser = useUserStore((state) => state.currentUser);
+  const updateBlog = useBlogStore((state) => state.updateBlog);
+  const removeBlog = useBlogStore((state) => state.removeBlog);
+  const showSuccess = useNotificationStore((state) => state.showSuccess);
   const blog = blogs.find((b) => b.id === id);
   const padding = { padding: 5 };
+  const navigate = useNavigate();
 
   if (!blog) {
     return (
@@ -21,14 +30,21 @@ const BlogView = ({ blogs, user, handleUpdateBlog, handleRemoveBlog }) => {
   const like = (event) => {
     event.preventDefault();
     const newBlog = { ...blog, likes: blog.likes + 1, user: blog.user.id };
-    handleUpdateBlog(newBlog);
+    blogService.update(newBlog.id, newBlog, currentUser.token).then((returnedBlog) => {
+      returnedBlog.user = blog.user;
+      updateBlog(returnedBlog);
+    });
   };
 
   const remove = (event) => {
     event.preventDefault();
     if (window.confirm(`Remove blog ${blog.title} by ${blog.author}?`)) {
-      handleRemoveBlog(blog.id);
+      blogService.deleteBlog(blog.id, currentUser.token).then(() => {
+        removeBlog(blog.id);
+        showSuccess("blog removed successfully");
+      });
     }
+    navigate("/");
   };
 
   return (
@@ -47,14 +63,14 @@ const BlogView = ({ blogs, user, handleUpdateBlog, handleRemoveBlog }) => {
         </Box>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <Typography variant="body2">{blog.likes} likes</Typography>
-          {user && (
+          {currentUser && (
             <Button variant="contained" size="small" onClick={like}>
               like
             </Button>
           )}
         </Box>
         <Typography variant="body2">added by {blog.user?.name}</Typography>
-        {blog.user && user && blog.user.name === user.name && (
+        {blog.user && currentUser && blog.user.name === currentUser.name && (
           <Button
             color="error"
             variant="outlined"

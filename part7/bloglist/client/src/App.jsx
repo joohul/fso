@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 
 import blogService from "./services/blogs";
 import loginService from "./services/login";
@@ -23,14 +23,15 @@ import ErrorBoundary from "./components/ErrorBoundary";
 
 import { AppBar, Button, Container, Toolbar, Typography } from "@mui/material";
 
-import { useNotificationStore, useBlogStore } from "./store";
+import { useNotificationStore, useBlogStore, useUserStore } from "./store";
 
 const AppContent = () => {
   // Maybe not the most elegant way to use Zustand but works well as a drop-in replacement
   const blogs = useBlogStore((state) => state.blogs);
   const setBlogs = useBlogStore((state) => state.setBlogs);
+  const currentUser = useUserStore((state) => state.currentUser);
+  const setCurrentUser = useUserStore((state) => state.setCurrentUser);
 
-  const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
   const blogFormRef = useRef();
@@ -43,7 +44,7 @@ const AppContent = () => {
     const loggedUserJSON = window.localStorage.getItem("loggedBlogAppUser");
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON);
-      setUser(user);
+      setCurrentUser(user);
     }
   }, []);
 
@@ -67,6 +68,7 @@ const AppContent = () => {
       })
       .then((user) => {
         setUser(user);
+        setCurrentUser(user);
         window.localStorage.setItem("loggedBlogAppUser", JSON.stringify(user));
         showSuccess("login successful");
         navigate("/");
@@ -74,41 +76,6 @@ const AppContent = () => {
       .catch(() => {
         showError("wrong username or password");
       });
-  };
-
-  const handleNewBlog = (newBlog) => {
-    blogService.create(newBlog, user.token).then((createdBlog) => {
-      // Ensure the created blog includes the current user object so UI updates immediately
-      createdBlog.user = user;
-      setBlogs([...blogs, createdBlog]);
-      showSuccess(
-        `a new blog ${createdBlog.title} by ${createdBlog.author} added`,
-      );
-      //blogFormRef.current.toggleVisibility()
-      navigate("/");
-    });
-  };
-
-  const handleUpdateBlog = (updatedBlog) => {
-    const blogUser = blogs.find((blog) => blog.id === updatedBlog.id)?.user; // Find the user from the current state of blogs
-    blogService
-      .update(updatedBlog.id, updatedBlog, user.token)
-      .then((returnedBlog) => {
-        returnedBlog.user = blogUser; // Restore the user information in the returned blog
-        const newBlogs = 
-          blogs.map((blog) =>
-            blog.id === returnedBlog.id ? returnedBlog : blog,
-        )
-        setBlogs(newBlogs);
-      });
-  };
-
-  const handleRemoveBlog = (blogId) => {
-    blogService.deleteBlog(blogId, user.token).then(() => {
-      setBlogs(blogs.filter((blog) => blog.id !== blogId));
-      showSuccess("blog removed successfully");
-      navigate("/");
-    });
   };
 
   return (
@@ -126,16 +93,16 @@ const AppContent = () => {
           <Button component={Link} to="/" color="inherit">
             home
           </Button>
-          {user && (
+          {currentUser && (
             <Button component={Link} to="/create" color="inherit">
               create new
             </Button>
           )}
-          {user ? (
+          {currentUser ? (
             <Button
               color="inherit"
               onClick={() => {
-                setUser(null);
+                setCurrentUser(null);
                 window.localStorage.removeItem("loggedBlogAppUser");
                 showSuccess("logged out");
                 navigate("/");
@@ -159,7 +126,7 @@ const AppContent = () => {
         <Routes>
           <Route
             path="/login"
-            element={<LoginForm onLogin={setUser} handleLogin={handleLogin} />}
+            element={<LoginForm onLogin={setCurrentUser} handleLogin={handleLogin} />}
           />
           <Route
             path="/"
@@ -180,19 +147,9 @@ const AppContent = () => {
           />
           <Route
             path="/blogs/:id"
-            element={
-              <BlogView
-                blogs={blogs}
-                user={user}
-                handleUpdateBlog={handleUpdateBlog}
-                handleRemoveBlog={handleRemoveBlog}
-              />
-            }
+            element={<BlogView />}
           />
-          <Route
-            path="/create"
-            element={<NewBlogForm createBlog={handleNewBlog} />}
-          />
+          <Route path="/create" element={<NewBlogForm />} />
           <Route
             path="*"
             element={

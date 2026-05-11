@@ -2,8 +2,23 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
 import BlogView from "./BlogView";
+import blogService from "../services/blogs";
+import { useBlogStore, useUserStore } from "../store";
+
+vi.mock("../services/blogs", () => ({
+  default: {
+    update: vi.fn().mockResolvedValue({}),
+    deleteBlog: vi.fn().mockResolvedValue({}),
+  },
+}));
+
+const resetStore = () => {
+  useBlogStore.setState({ blogs: [] });
+  useUserStore.setState({ currentUser: null });
+};
 
 test("renders content", () => {
+  resetStore();
   const blog = {
     title: "Title",
     author: "Author",
@@ -16,10 +31,12 @@ test("renders content", () => {
     },
   };
 
+  useBlogStore.setState({ blogs: [blog] });
+
   render(
     <MemoryRouter initialEntries={[`/blogs/${blog.id}`]}>
       <Routes>
-        <Route path="/blogs/:id" element={<BlogView blogs={[blog]} />} />
+        <Route path="/blogs/:id" element={<BlogView />} />
       </Routes>
     </MemoryRouter>,
   );
@@ -30,6 +47,7 @@ test("renders content", () => {
 });
 
 test("clicking the button shows additional information", async () => {
+  resetStore();
   const blog = {
     title: "Title",
     author: "Author",
@@ -41,10 +59,12 @@ test("clicking the button shows additional information", async () => {
       name: "Test User",
     },
   };
+  useBlogStore.setState({ blogs: [blog] });
+
   render(
     <MemoryRouter initialEntries={[`/blogs/${blog.id}`]}>
       <Routes>
-        <Route path="/blogs/:id" element={<BlogView blogs={[blog]} />} />
+        <Route path="/blogs/:id" element={<BlogView />} />
       </Routes>
     </MemoryRouter>,
   );
@@ -55,6 +75,7 @@ test("clicking the button shows additional information", async () => {
 });
 
 test("clicking the like button twice calls event handler twice", async () => {
+  resetStore();
   const blog = {
     title: "Title",
     author: "Author",
@@ -67,23 +88,14 @@ test("clicking the like button twice calls event handler twice", async () => {
     },
   };
 
-  const mockHandler = vi.fn();
-
   const currentUser = { id: "someone", name: "Some User" };
+  useBlogStore.setState({ blogs: [blog] });
+  useUserStore.setState({ currentUser });
 
   render(
     <MemoryRouter initialEntries={[`/blogs/${blog.id}`]}>
       <Routes>
-        <Route
-          path="/blogs/:id"
-          element={
-            <BlogView
-              blogs={[blog]}
-              user={currentUser}
-              handleUpdateBlog={mockHandler}
-            />
-          }
-        />
+        <Route path="/blogs/:id" element={<BlogView />} />
       </Routes>
     </MemoryRouter>,
   );
@@ -93,10 +105,11 @@ test("clicking the like button twice calls event handler twice", async () => {
   await user.click(likeButton);
   await user.click(likeButton);
 
-  expect(mockHandler.mock.calls).toHaveLength(2);
+  expect(blogService.update).toHaveBeenCalledTimes(2);
 });
 
 test("blog information is displayed to unauthenticated users without action buttons", async () => {
+  resetStore();
   const blog = {
     title: "Title",
     author: "Author",
@@ -108,10 +121,12 @@ test("blog information is displayed to unauthenticated users without action butt
       name: "Test User",
     },
   };
+  useBlogStore.setState({ blogs: [blog] });
+
   render(
     <MemoryRouter initialEntries={[`/blogs/${blog.id}`]}>
       <Routes>
-        <Route path="/blogs/:id" element={<BlogView blogs={[blog]} />} />
+        <Route path="/blogs/:id" element={<BlogView />} />
       </Routes>
     </MemoryRouter>,
   );
@@ -123,6 +138,7 @@ test("blog information is displayed to unauthenticated users without action butt
 });
 
 test("authenticated user who is not the blog creator sees only the like button", async () => {
+  resetStore();
   const blog = {
     title: "Title",
     author: "Author",
@@ -139,13 +155,13 @@ test("authenticated user who is not the blog creator sees only the like button",
     id: "abcde",
     name: "Second User",
   };
+  useBlogStore.setState({ blogs: [blog] });
+  useUserStore.setState({ currentUser });
+
   render(
     <MemoryRouter initialEntries={[`/blogs/${blog.id}`]}>
       <Routes>
-        <Route
-          path="/blogs/:id"
-          element={<BlogView blogs={[blog]} user={currentUser} />}
-        />
+        <Route path="/blogs/:id" element={<BlogView />} />
       </Routes>
     </MemoryRouter>,
   );
@@ -155,6 +171,7 @@ test("authenticated user who is not the blog creator sees only the like button",
 });
 
 test("blog creator sees both like button and delete button", async () => {
+  resetStore();
   const blog = {
     title: "Title",
     author: "Author",
@@ -171,20 +188,13 @@ test("blog creator sees both like button and delete button", async () => {
     id: "12345",
     name: "Creator",
   };
+  useBlogStore.setState({ blogs: [blog] });
+  useUserStore.setState({ currentUser });
+
   render(
     <MemoryRouter initialEntries={[`/blogs/${blog.id}`]}>
       <Routes>
-        <Route
-          path="/blogs/:id"
-          element={
-            <BlogView
-              blogs={[blog]}
-              user={currentUser}
-              handleRemoveBlog={vi.fn()}
-              handleUpdateBlog={vi.fn()}
-            />
-          }
-        />
+        <Route path="/blogs/:id" element={<BlogView />} />
       </Routes>
     </MemoryRouter>,
   );

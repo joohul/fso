@@ -1,25 +1,40 @@
 import { useState } from "react";
 import { Button, TextField } from "@mui/material";
+import blogService from "../services/blogs";
+import { useBlogStore, useNotificationStore, useUserStore } from "../store";
+import { useNavigate } from "react-router-dom";
 
-const NewBlogForm = ({ createBlog }) => {
+const NewBlogForm = () => {
   const [newTitle, setNewTitle] = useState("");
   const [newAuthor, setNewAuthor] = useState("");
   const [newUrl, setNewUrl] = useState("");
+  const currentUser = useUserStore((state) => state.currentUser);
+  const addBlog = useBlogStore((state) => state.addBlog);
+  const showSuccess = useNotificationStore((state) => state.showSuccess);
+  const navigate = useNavigate();
 
-  const addBlog = (event) => {
+  const handleAddBlog = (event) => {
     event.preventDefault();
     const newBlog = {
       title: newTitle,
       author: newAuthor,
       url: newUrl,
     };
-    createBlog(newBlog);
+    blogService.create(newBlog, currentUser.token).then((createdBlog) => {
+      createdBlog.user = currentUser;
+      addBlog(createdBlog);
+      showSuccess(`a new blog ${createdBlog.title} by ${createdBlog.author} added`);
+      setNewTitle("");
+      setNewAuthor("");
+      setNewUrl("");
+    });
+    navigate("/");
   };
 
   return (
     <div>
       <h2>create new</h2>
-      <form onSubmit={addBlog}>
+      <form onSubmit={handleAddBlog}>
         <div style={{ marginBottom: 12 }}>
           <TextField
             label="title"
