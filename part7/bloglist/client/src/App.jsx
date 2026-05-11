@@ -22,13 +22,30 @@ import BlogView from "./components/BlogView";
 
 import ErrorBoundary from "./components/ErrorBoundary";
 
+import { create } from "zustand";
+
 import { AppBar, Button, Container, Toolbar, Typography } from "@mui/material";
+
+const useNotificationStore = create((set) => ({
+  successMessage: null,
+  errorMessage: null,
+  showSuccess: (message) => {
+    set({ successMessage: message });
+    setTimeout(() => {
+      set({ successMessage: null });
+    }, 5000);
+  },
+  showError: (message) => {
+    set({ errorMessage: message });
+    setTimeout(() => {
+      set({ errorMessage: null });
+    }, 5000);
+  },
+}));
 
 const AppContent = () => {
   const [blogs, setBlogs] = useState([]);
   const [user, setUser] = useState(null);
-  const [successMessage, setSuccessMessage] = useState(null);
-  const [errorMessage, setErrorMessage] = useState(null);
   const navigate = useNavigate();
 
   const blogFormRef = useRef();
@@ -46,18 +63,15 @@ const AppContent = () => {
   }, []);
 
   const showError = (message) => {
-    setErrorMessage(message);
-    setTimeout(() => {
-      setErrorMessage(null);
-    }, 5000);
+    useNotificationStore.getState().showError(message);
   };
 
   const showSuccess = (message) => {
-    setSuccessMessage(message);
-    setTimeout(() => {
-      setSuccessMessage(null);
-    }, 5000);
+    useNotificationStore.getState().showSuccess(message);
   };
+
+  const successMessage = useNotificationStore((state) => state.successMessage);
+  const errorMessage = useNotificationStore((state) => state.errorMessage);
 
   const handleLogin = (event, setUser) => {
     event.preventDefault();
