@@ -126,7 +126,9 @@ const AppContent = () => {
         <Routes>
           <Route
             path="/login"
-            element={<LoginForm onLogin={setCurrentUser} handleLogin={handleLogin} />}
+            element={
+              <LoginForm onLogin={setCurrentUser} handleLogin={handleLogin} />
+            }
           />
           <Route
             path="/"
@@ -145,10 +147,7 @@ const AppContent = () => {
               </div>
             }
           />
-          <Route
-            path="/blogs/:id"
-            element={<BlogView />}
-          />
+          <Route path="/blogs/:id" element={<BlogView />} />
           <Route path="/create" element={<NewBlogForm />} />
           <Route
             path="*"

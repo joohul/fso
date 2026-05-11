@@ -30,10 +30,12 @@ const BlogView = () => {
   const like = (event) => {
     event.preventDefault();
     const newBlog = { ...blog, likes: blog.likes + 1, user: blog.user.id };
-    blogService.update(newBlog.id, newBlog, currentUser.token).then((returnedBlog) => {
-      returnedBlog.user = blog.user;
-      updateBlog(returnedBlog);
-    });
+    blogService
+      .update(newBlog.id, newBlog, currentUser.token)
+      .then((returnedBlog) => {
+        returnedBlog.user = blog.user;
+        updateBlog(returnedBlog);
+      });
   };
 
   const remove = (event) => {

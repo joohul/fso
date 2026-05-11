@@ -32,7 +32,7 @@ export const useBlogStore = create((set) => ({
     })),
   removeBlog: (blogId) =>
     set((state) => ({
-      blogs: state.blogs.filter((blog) => blog.id !== blogId), 
+      blogs: state.blogs.filter((blog) => blog.id !== blogId),
     })),
 }));
 
@@ -40,5 +40,3 @@ export const useUserStore = create((set) => ({
   currentUser: null,
   setCurrentUser: (currentUser) => set({ currentUser }),
 }));
-
-

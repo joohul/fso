@@ -23,7 +23,9 @@ const NewBlogForm = () => {
     blogService.create(newBlog, currentUser.token).then((createdBlog) => {
       createdBlog.user = currentUser;
       addBlog(createdBlog);
-      showSuccess(`a new blog ${createdBlog.title} by ${createdBlog.author} added`);
+      showSuccess(
+        `a new blog ${createdBlog.title} by ${createdBlog.author} added`,
+      );
       setNewTitle("");
       setNewAuthor("");
       setNewUrl("");
