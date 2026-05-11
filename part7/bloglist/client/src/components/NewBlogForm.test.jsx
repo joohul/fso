@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import NewBlogForm from "./NewBlogForm";
 import blogService from "../services/blogs";
 import { useBlogStore, useUserStore } from "../store";
+import { BrowserRouter as Router } from "react-router-dom";
 
 vi.mock("../services/blogs", () => ({
   default: {
@@ -27,7 +28,11 @@ test("new blog form calls event handler with correct details", async () => {
     currentUser: { id: "123", name: "Test User", token: "token" },
   });
 
-  render(<NewBlogForm />);
+  render(
+    <Router>
+      <NewBlogForm />
+    </Router>
+  );
 
   const user = userEvent.setup();
   const inputs = screen.getAllByRole("textbox");
